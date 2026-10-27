@@ -9281,44 +9281,93 @@ try {
         });
     }
 
-    // Carte moteurs DFR0548 : vitesse signee de chaque moteur (-255 a 255, negatif = antihoraire) et position
-    // cumulee de chaque moteur pas a pas (degres), avec la duree du dernier mouvement pour animer l'aiguille.
-    let etatDfrMoteurs = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    // Carte moteurs DFR0548 : vitesse signee de chaque moteur pilote (-255 a 255, negatif = antihoraire) et position
+    // cumulee de chaque moteur pas a pas (degres), avec la duree du dernier mouvement pour animer l'axe.
+    // Dessins (choix de l'utilisateur, modele A) : motoreducteur jaune « TT » et sa roue ; pas a pas dessine selon
+    // le modele du bloc (28BYJ-48 rond argente, 42BYGH carre noir) avec un repere sur l'axe. Chaque vignette est
+    // creee une fois puis seulement mise a jour : la reconstruire relancerait l'animation de la roue.
+    let etatDfrMoteurs = {};
     let etatDfrPas = {};
     const zoneDfrMoteurs = document.getElementById('dfr-moteurs');
     const zoneDfrPas = document.getElementById('dfr-pas');
+    const SVG_MOTEUR_TT =
+        '<svg viewBox="0 0 170 90" aria-hidden="true">' +
+        '<rect x="6" y="30" width="92" height="30" rx="5" fill="#f2c230" stroke="#8a6d10" stroke-width="1.5"/>' +
+        '<rect x="98" y="35" width="10" height="20" fill="#f2c230" stroke="#8a6d10" stroke-width="1.5"/>' +
+        '<rect x="20" y="38" width="44" height="14" rx="3" fill="#e2b020"/>' +
+        '<circle cx="14" cy="45" r="3" fill="#8a6d10"/><rect x="0" y="40" width="6" height="10" fill="#9e9e9e"/>' +
+        '<g class="dfr-roue">' +
+        '<circle cx="130" cy="45" r="34" fill="#2b2b2b"/><circle cx="130" cy="45" r="24" fill="#fafafa" stroke="#9e9e9e"/>' +
+        '<path d="M130 23 L130 67 M108 45 L152 45 M114.4 29.4 L145.6 60.6 M145.6 29.4 L114.4 60.6" stroke="#9e9e9e" stroke-width="3"/>' +
+        '<circle cx="130" cy="45" r="6" fill="#f2c230" stroke="#8a6d10"/></g></svg>';
+    const SVG_PAS = {
+        '28BYJ-48': '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+            '<rect x="2" y="44" width="96" height="12" rx="3" fill="#c0c4c8" stroke="#6b7075"/>' +
+            '<circle cx="8" cy="50" r="3" class="dfr-trou"/><circle cx="92" cy="50" r="3" class="dfr-trou"/>' +
+            '<circle cx="50" cy="50" r="40" fill="#cfd4d8" stroke="#6b7075" stroke-width="1.5"/>' +
+            '<rect x="34" y="84" width="32" height="12" rx="2" fill="#1e5fbf"/>' +
+            '<circle cx="50" cy="36" r="13" fill="#e9eef2" stroke="#6b7075"/>' +
+            '<g class="dfr-axe" style="transform-origin: 50px 36px">' +
+            '<circle cx="50" cy="36" r="6" fill="#f2c230" stroke="#8a6d10"/><rect x="48" y="22" width="4" height="12" rx="1" fill="#c62828"/></g></svg>',
+        '42BYGH': '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+            '<rect x="8" y="8" width="84" height="84" rx="8" fill="#2e2e2e" stroke="#111" stroke-width="1.5"/>' +
+            '<circle cx="20" cy="20" r="4" fill="#9e9e9e"/><circle cx="80" cy="20" r="4" fill="#9e9e9e"/>' +
+            '<circle cx="20" cy="80" r="4" fill="#9e9e9e"/><circle cx="80" cy="80" r="4" fill="#9e9e9e"/>' +
+            '<circle cx="50" cy="50" r="20" fill="#3d3d3d" stroke="#6b7075"/>' +
+            '<g class="dfr-axe" style="transform-origin: 50px 50px">' +
+            '<circle cx="50" cy="50" r="7" fill="#c0c4c8"/><rect x="48" y="33" width="4" height="15" rx="1" fill="#f2c230"/></g></svg>',
+    };
+    /** « 1 tour + 90° », « 3 tours », « 45° » : plus lisible qu'un angle cumule de plusieurs milliers de degres. */
+    function texteTours(degres) {
+        const d = Math.round(Math.abs(degres)), tours = Math.floor(d / 360), reste = d % 360;
+        const t = tours ? tours + (tours > 1 ? ' tours' : ' tour') : '';
+        return (degres < 0 ? '↺ ' : '↻ ') + (t && reste ? t + ' + ' + reste + '°' : t || reste + '°');
+    }
+    /** Vignette d'un moteur (cle), creee au premier appel puis reutilisee. */
+    function vignetteDfr(zone, cle, modele, svg) {
+        let el = zone.querySelector('[data-cle="' + cle + '"]');
+        if (el && el.dataset.modele !== modele) { el.remove(); el = null; }
+        if (!el) {
+            el = document.createElement('div');
+            el.className = 'dfr-vignette';
+            el.dataset.cle = cle;
+            el.dataset.modele = modele;
+            el.innerHTML = svg + '<div class="dfr-jauge"><div></div></div><div class="dfr-nom"></div>';
+            const suivant = [...zone.children].find(x => x.dataset.cle > cle);
+            zone.insertBefore(el, suivant || null);
+        }
+        return el;
+    }
     function dessinerDfr() {
         if (zoneDfrMoteurs) {
-            zoneDfrMoteurs.innerHTML = [1, 2, 3, 4].map(n => {
+            const numeros = Object.keys(etatDfrMoteurs).sort();
+            zoneDfrMoteurs.hidden = !numeros.length;
+            for (const n of numeros) {
                 const v = etatDfrMoteurs[n];
-                const etat = v === 0 ? 'arrêt' : (v > 0 ? '↻ ' : '↺ ') + Math.abs(v);
-                // Un tour en 2 s a pleine vitesse, plus lent en dessous ; le sens suit le signe.
-                const animation = v === 0 ? '' : ' tourne' + (v < 0 ? ' inverse' : '');
-                return '<div class="dfr-moteur"><span class="dfr-helice' + animation + '" style="--duree:' +
-                       (v === 0 ? 1 : Math.min(10, 510 / Math.abs(v))).toFixed(2) + 's">✣</span>M' + n + ' : ' + etat + '</div>';
-            }).join('');
+                const el = vignetteDfr(zoneDfrMoteurs, n, 'tt', SVG_MOTEUR_TT);
+                const roue = el.querySelector('.dfr-roue');
+                el.classList.toggle('arret', v === 0);
+                roue.classList.toggle('tourne', v !== 0);
+                roue.classList.toggle('inverse', v < 0);
+                // Un tour en 1 s a pleine vitesse, plus lent en dessous ; le sens suit le signe.
+                if (v !== 0) roue.style.setProperty('--duree', Math.min(10, 255 / Math.abs(v)).toFixed(2) + 's');
+                el.querySelector('.dfr-jauge div').style.width = Math.round(Math.abs(v) / 255 * 100) + '%';
+                el.querySelector('.dfr-nom').textContent = 'M' + n + ' · ' + (v === 0 ? 'arrêt' : (v > 0 ? '↻ ' : '↺ ') + Math.abs(v));
+            }
+            for (const el of [...zoneDfrMoteurs.children]) if (!(el.dataset.cle in etatDfrMoteurs)) el.remove();
         }
         if (zoneDfrPas) {
             const paires = Object.keys(etatDfrPas).sort();
             zoneDfrPas.hidden = !paires.length;
             for (const paire of paires) {
                 const p = etatDfrPas[paire];
-                let el = zoneDfrPas.querySelector('[data-paire="' + paire + '"]');
-                if (!el) {
-                    el = document.createElement('div');
-                    el.className = 'dfr-pas';
-                    el.dataset.paire = paire;
-                    el.innerHTML = '<svg viewBox="0 0 44 44" aria-hidden="true"><circle class="dfr-cadran" cx="22" cy="22" r="19"/>' +
-                                   '<line class="dfr-aiguille" x1="22" y1="22" x2="22" y2="7"/></svg><span></span>';
-                    zoneDfrPas.appendChild(el);
-                }
-                const aiguille = el.querySelector('.dfr-aiguille');
-                aiguille.style.transition = 'transform ' + (p.duree / 1000).toFixed(2) + 's linear';
-                aiguille.style.transform = 'rotate(' + p.position + 'deg)';
-                el.querySelector('span').textContent = (paire === '1' ? 'M1-M2' : 'M3-M4') + ' (' + p.modele + ') : ' +
-                    Math.round(p.position) + '°';
+                const el = vignetteDfr(zoneDfrPas, paire, p.modele, SVG_PAS[p.modele] || SVG_PAS['28BYJ-48']);
+                const axe = el.querySelector('.dfr-axe');
+                axe.style.transition = 'transform ' + (p.duree / 1000).toFixed(2) + 's linear';
+                axe.style.transform = 'rotate(' + p.position + 'deg)';
+                el.querySelector('.dfr-nom').textContent = (paire === '1' ? 'M1-M2' : 'M3-M4') + ' · ' + p.modele + ' · ' + texteTours(p.position);
             }
-            for (const el of [...zoneDfrPas.children]) if (!etatDfrPas[el.dataset.paire]) el.remove();
+            for (const el of [...zoneDfrPas.children]) if (!etatDfrPas[el.dataset.cle]) el.remove();
         }
     }
 
@@ -9509,7 +9558,7 @@ try {
         dessinerLcd();
         etatMoteurs = { 1: 'arrêt', 2: 'arrêt' };
         dessinerMoteurs();
-        etatDfrMoteurs = { 1: 0, 2: 0, 3: 0, 4: 0 };
+        etatDfrMoteurs = {};
         etatDfrPas = {};
         dessinerDfr();
         etatLeds = {};
@@ -9999,7 +10048,8 @@ try {
             window.simu_playQueue();
         }
         else if (action.type === 'dfrMoteur') {
-            etatDfrMoteurs[action.numero] = action.vitesse;
+            // Un arret ne fait pas apparaitre un moteur jamais mis en marche (« arreter tous les moteurs »).
+            if (action.vitesse !== 0 || action.numero in etatDfrMoteurs) etatDfrMoteurs[action.numero] = action.vitesse;
             dessinerDfr();
             window.simu_playQueue();
         }

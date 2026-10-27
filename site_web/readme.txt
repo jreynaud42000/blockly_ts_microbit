@@ -1330,6 +1330,8 @@ Pour les pas a pas, la PCA9685 produit elle-meme la sequence ; l'angle n'est obt
 (28BYJ-48 : 1 s par tour ; 42BYGH : 1,39 s par tour). Ces durees viennent de la bibliotheque DFRobot et n'ont pas ete
 mesurees : un tour demande peut ne pas faire exactement un tour.
 Simulateur : les servos apparaissent dans "Servomoteurs" (DFR S1 a DFR S8), les moteurs et les pas a pas dans la section
-"Carte moteurs DFR0548" du panneau (helice qui tourne, cadran avec la position cumulee depuis la derniere
-reinitialisation). Le pas a pas occupe le programme le meme temps que sur la carte.
+"Carte moteurs DFR0548" du panneau : un motoreducteur jaune "TT" par moteur pilote, dont la roue tourne dans le
+bon sens et d'autant plus vite que la vitesse est grande (jauge 0 a 255 dessous, grise a l'arret) ; un dessin par
+moteur pas a pas selon son modele (28BYJ-48 rond argente, 42BYGH carre noir), repere qui tourne sur l'axe, et la
+position cumulee depuis la derniere reinitialisation en tours + degres (ex. "1 tour + 90"). Le pas a pas occupe le programme le meme temps que sur la carte.
 Pas verifie sur une vraie carte. Pas de reconstruction des blocs a l'import d'un .py (ils deviennent des blocs "code").

@@ -968,19 +968,26 @@
     #grove-couleur { width: 100%; height: 30px; padding: 0; border: 0; background: none; cursor: pointer; }
     #grove-moteurs, #grove-servos { background: var(--fond-saisie); border-radius: 4px; padding: 6px 8px; font-size: 11px; }
     #grove-servos { display: flex; flex-wrap: wrap; gap: 4px; }
-    /* Carte moteurs DFR0548 : une ligne par moteur, un cadran par moteur pas a pas (aiguille = position cumulee). */
-    #dfr-moteurs, #dfr-pas { background: var(--fond-saisie); border-radius: 4px; padding: 6px 8px; font-size: 11px; }
-    #dfr-pas { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 10px; }
-    #dfr-pas[hidden] { display: none; }
-    .dfr-moteur { display: flex; align-items: center; gap: 6px; }
-    .dfr-helice { display: inline-block; width: 12px; text-align: center; }
-    .dfr-helice.tourne { animation: dfr-tourne var(--duree, 1s) linear infinite; }
-    .dfr-helice.tourne.inverse { animation-direction: reverse; }
+    /* Carte moteurs DFR0548 (un.js, dessinerDfr) : une vignette par moteur pilote (motoreducteur jaune « TT » et sa
+       roue qui tourne, jauge de vitesse) et par moteur pas a pas (dessin selon le modele, repere sur l'axe). */
+    #dfr-moteurs, #dfr-pas { display: flex; flex-wrap: wrap; gap: 6px; }
+    #dfr-pas { margin-top: 6px; }
+    #dfr-moteurs[hidden], #dfr-pas[hidden] { display: none; }
+    .dfr-vignette { background: var(--fond-saisie); border-radius: 4px; padding: 6px 8px; font-size: 11px;
+                    display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    #dfr-moteurs .dfr-vignette svg { width: 85px; height: 45px; }
+    #dfr-pas .dfr-vignette svg { width: 56px; height: 56px; }
+    #dfr-pas .dfr-jauge { display: none; }
+    .dfr-vignette.arret svg { filter: grayscale(1); opacity: 0.6; }
+    .dfr-roue { transform-box: fill-box; transform-origin: center; }
+    .dfr-roue.tourne { animation: dfr-tourne var(--duree, 1s) linear infinite; }
+    .dfr-roue.tourne.inverse { animation-direction: reverse; }
     @keyframes dfr-tourne { to { transform: rotate(360deg); } }
-    .dfr-pas { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .dfr-pas svg { width: 44px; height: 44px; }
-    .dfr-pas .dfr-cadran { fill: none; stroke: var(--bordure-chrome); stroke-width: 3; }
-    .dfr-pas .dfr-aiguille { stroke: #0b7285; stroke-width: 4; stroke-linecap: round; transform-origin: 22px 22px; }
+    .dfr-axe { transform-box: view-box; }
+    .dfr-trou { fill: var(--fond-saisie); }
+    .dfr-jauge { width: 100%; height: 4px; border-radius: 2px; background: var(--bordure-chrome); }
+    .dfr-jauge div { height: 100%; border-radius: 2px; background: #0b7285; width: 0; transition: width 0.2s; }
+    .dfr-nom { white-space: nowrap; }
 
     /* Un servo positionnel se place a un angle : rotation animee par une
        transition. Un servo a rotation continue tourne sans fin : rotation
