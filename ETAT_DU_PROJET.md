@@ -308,6 +308,15 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    thermomètre, et surtout confirmer qu'un `write_digital`/`set_pull` répété ne
    perturbe pas un autre module câblé en même temps (`_dht_birq`/`_ubirq`
    coupent les interruptions le temps de la capture).
+7. **La carte moteurs DFR0548** (oct. 2026). Canaux, impulsions, séquences et
+   durées repris de la bibliothèque MakeCode officielle `DFRobot/pxt-motor`
+   (`main.ts`). Vérifié : le pilote généré, exécuté avec un faux bus I²C, écrit
+   exactement les mêmes registres que cette bibliothèque (initialisation 50 Hz,
+   S1 → canal 15, S8 → canal 8, M1 → canaux 6/7, M2 → canaux 4/5, séquences 28BYJ-48
+   et 42BYGH). Jamais exécuté sur une vraie carte. Si disponible : vérifier le sens
+   « horaire » de chaque moteur, et surtout l'angle réel des pas à pas — la
+   bibliothèque obtient l'angle par une durée (1 s par tour pour le 28BYJ-48),
+   ce qui paraît très rapide pour ce moteur et doit être mesuré.
 
 ## Écarté volontairement
 
