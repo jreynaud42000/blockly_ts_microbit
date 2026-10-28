@@ -1357,3 +1357,13 @@ La carte Grove est dessinee d'apres les photos du fabricant (72 x 72 mm, echancr
 USB, voyant PWR, connecteur plat) ; les noms des fils (GND, 3V3, SDA, SCL...) imprimes au-dessus des ports sont omis,
 trop petits a cette echelle, et le nom des ports est place au-dessus d'eux pour ne pas etre cache par les cables.
 La disposition des connecteurs sur la DFR0548 est stylisee (pas relevee sur une photo).
+Choix de la carte (oct. 2026) : en tete du montage, "Carte d'extension" propose Grove Shield v2.0 ou BitMaker V2
+(boutons radio, choix memorise dans le navigateur, Grove par defaut). Avec des blocs DFR0548, le choix disparait :
+"Carte DFR0548 : choisie car le programme utilise ses blocs".
+BitMaker V2 (Seeed, 57 x 70 mm), dessinee d'apres la photo de dessus du fabricant : 3 ports Grove a gauche (P8 :
+P8 et P14 ; I2C ; P15 : P15 et P16) et 3 a droite (~P0 : P0 et P1 ; ~P1 : P1 et P2 ; ~P2 : P2 et P12), avec les
+noms des fils comme sur la carte ; 4 LED RGB (Pixel 0 a 3) sur P13 ; 5 pastilles 0, 1, 2, VCC, GND ; en haut, prise
+batterie JST, micro USB et selecteur 5 V / 3,3 V (en partie sous la micro:bit). Une broche seule va sur le port ou
+elle est le signal 1 (fil jaune) ; un module a deux broches va sur le port qui les porte toutes les deux (joystick
+X = P0, Y = P1 sur ~P0). P1 et P2 sortant chacune sur deux ports, "port partage" signale aussi deux modules qui
+utilisent la meme broche par deux ports differents. P13 n'a pas de port : "P13 reservee aux LED de la carte".

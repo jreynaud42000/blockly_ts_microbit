@@ -349,6 +349,16 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    (la rangée du bas, plus large, sert aussi aux servos de la DFR0548). Positions
    Grove mesurées sur photo, à quelques millimètres près ; la DFR0548 reste stylisée
    (aucune photo relevée).
+   **BitMaker V2** et choix de la carte (boutons radio « Carte d'extension »,
+   mémorisés dans `localStorage` sous `montageCarte`) : carte dessinée d'après la
+   photo de dessus Seeed (`114992653_front-05`, 563 × 692 px pour 57 × 70 mm,
+   chaque cote convertie depuis les pixels). Vérifié dans le navigateur : bouton
+   sur ~P0, LED sur P12 (port ~P2), ultrason sur P8, OLED sur I2C, lumière sur
+   P15, potentiomètre sur ~P1, joystick X/Y sur P1/P2, buzzer sur P13 (« P13
+   réservée aux LED de la carte ») ; bascule Grove ↔ BitMaker mémorisée, choix
+   remplacé par la phrase DFR0548 dès qu'un bloc DFR0548 est posé, étiquettes de
+   44 px, thèmes sombre et clair. À comparer avec une vraie carte : sens des fils
+   de chaque port (lu sur la sérigraphie, de haut en bas).
 
 ## Écarté volontairement
 
