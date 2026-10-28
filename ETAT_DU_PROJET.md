@@ -6,7 +6,7 @@ Copiée de : `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_minim
 Vérifié après le retrait (navigateur intégré, oct. 2026) : aucune erreur JavaScript au chargement ; colonne de catégories sans « Robots », menu Fichier sans « Séance » ; simulation d'un « afficher l'icône » dans « Répéter indéfiniment » (matrice allumée) ; exercices, évaluation et rapport sans bouton « Rendre mon travail ». Pas vérifié : l'exe PyInstaller, le site hébergé, une vraie carte.
 Lancement : double-clic sur `lancer_projet.bat`, puis <http://localhost:8000> — ou l'exe `dist\MicrobitBlockly_V2.0E.exe`
 Hébergement : dossier `site_web` (site statique, voir `PROMPT_RECREATION.md` §26)
-Fichiers ajoutés depuis la V2.0C : `bandeau.js`, `exercices.js`, `exercices.json`, `ia-immediat.js`, `ia-son-immediat.js`, `lib/mediapipe`, `lib/zxing`, `site_web/` (voir la section « Évolutions de la copie »)
+Fichiers ajoutés depuis la V2.0C : `bandeau.js`, `montage.js`, `exercices.js`, `exercices.json`, `ia-immediat.js`, `ia-son-immediat.js`, `lib/mediapipe`, `lib/zxing`, `site_web/` (voir la section « Évolutions de la copie »)
 
 Ce fichier dit **où on en est** : ce qui a été vérifié, ce qui ne peut l'être
 sans matériel, et ce qui a été écarté. Les deux autres documents complètent :
@@ -336,6 +336,16 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    « horaire » de chaque moteur, et surtout l'angle réel des pas à pas — la
    bibliothèque obtient l'angle par une durée (1 s par tour pour le 28BYJ-48),
    ce qui paraît très rapide pour ce moteur et doit être mesuré.
+8. **La vue montage** (oct. 2026, `montage.js`, readme §44). Vérifié dans le
+   navigateur intégré : carte Grove avec bouton, potentiomètre, ultrason, LED,
+   OLED, LCD, buzzer sur P8 et barre de LED sur P8/P12 (« port partagé », « bus I2C
+   partagé », « hors port Grove ») ; carte DFR0548 avec moteur M1, pas à pas
+   M3 + M4, servo S2, modules sur P0 et P13, OLED ; la carte revient à sa place à
+   la fermeture (Échap, focus rendu au bouton), boutons et broches cliquables dans
+   le montage, thèmes sombre, clair et contraste élevé. À comparer avec les vraies
+   cartes : la place des ports sur la Grove Shield v2.0 et des connecteurs sur la
+   DFR0548 est stylisée (aucune photo relevée), seuls le nombre et le nom des ports
+   Grove viennent des fiches du fabricant.
 
 ## Écarté volontairement
 

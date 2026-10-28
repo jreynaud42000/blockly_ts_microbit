@@ -9317,6 +9317,8 @@ try {
             '<g class="dfr-axe" style="transform-origin: 50px 50px">' +
             '<circle cx="50" cy="50" r="7" fill="#c0c4c8"/><rect x="48" y="33" width="4" height="15" rx="1" fill="#f2c230"/></g></svg>',
     };
+    // Memes dessins dans la vue montage (montage.js) : une seule source pour les moteurs.
+    window.dessinsMoteursDfr = { tt: SVG_MOTEUR_TT, pas: SVG_PAS };
     /** « 1 tour + 90° », « 3 tours », « 45° » : plus lisible qu'un angle cumule de plusieurs milliers de degres. */
     function texteTours(degres) {
         const d = Math.round(Math.abs(degres)), tours = Math.floor(d / 360), reste = d % 360;
