@@ -359,6 +359,11 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    remplacé par la phrase DFR0548 dès qu'un bloc DFR0548 est posé, étiquettes de
    44 px, thèmes sombre et clair. À comparer avec une vraie carte : sens des fils
    de chaque port (lu sur la sérigraphie, de haut en bas).
+   Ruban sur P13 avec la BitMaker = les 4 LED de la carte : vérifié en lançant la
+   simulation (LED 0 rouge et LED 2 verte, puis LED 1 bleue avec un ruban de 8 LED
+   et la mention « la carte n'a que 4 LED »), extinction à la réinitialisation ;
+   sur la carte Grove, le même ruban reste sur la pastille P13. Les couleurs sont
+   recopiées de `#grove-ruban` (MutationObserver), sans toucher à `un.js`.
 
 ## Écarté volontairement
 

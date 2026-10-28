@@ -186,6 +186,12 @@ function lireMontage() {
         }
         const pins = broches(b, def.champs);
         if (!pins.length) continue;
+        if (bitmaker && def.picto === 'ruban' && pins[0] === 'pin13') {
+            // Sur la BitMaker, P13 pilote les 4 LED soudees : pas de module ni de cable, ce sont elles qui s'allument.
+            ajouter('ruban-carte', { nom: def.nom, etiquette: 'LED de la carte (P13)', fils: [], surCarte: true,
+                                     note: Number(b.getFieldValue('NB')) > 4 ? 'la carte n\'a que 4 LED' : '' });
+            continue;
+        }
         const cle = def.nom + '|' + pins.join(',');
         if (modules.has(cle)) continue;
         ajouter(cle, Object.assign({ nom: def.nom, picto: def.picto, large: def.large, pins },
@@ -253,6 +259,7 @@ function branchementDfr(pins, servo) {
 function disposer(modules, basCarte) {
     const cotes = { g: [], d: [], b: [] };
     for (const m of modules) {
+        if (m.surCarte) continue;
         if (!m.fils.length) { m.cote = 'b'; m.ancre = [LARGEUR / 2, basCarte]; cotes.b.push(m); continue; }
         const [dx] = m.fils[0].d;
         m.cote = dx < 0 ? 'g' : dx > 0 ? 'd' : 'b';
@@ -372,8 +379,10 @@ function dessinCarteBitmaker() {
     s += tp(700, 500, 'V2', 'class="montage-serigraphie micro" text-anchor="middle"');
     for (const x of [620, 783]) s += cercle(bx(x), by(553), 17 * BM.k, 'style="fill: var(--fond-chrome)"');
     // 4 LED RGB adressables (Pixel 0 a 3) en losange autour de l'etiquette P13.
-    [[700, 690], [745, 722], [700, 754], [652, 722]].forEach(([x, y]) => {
-        s += rp(x - 10, y - 10, x + 10, y + 10, 'fill="#f4f4f4" stroke="#9a9a9a"') + cercle(bx(x), by(y), 2.5, 'fill="#8a6d6d"'); });
+    // Un ruban defini sur P13 les allume (voir copierLedsCarte) ; eteintes, elles restent blanches.
+    [[700, 690], [745, 722], [700, 754], [652, 722]].forEach(([x, y], i) => {
+        s += rp(x - 10, y - 10, x + 10, y + 10, `class="montage-pixel" data-led="${i}" fill="#f4f4f4" stroke="#9a9a9a"`) +
+             cercle(bx(x), by(y), 2.5, 'fill="#8a6d6d"'); });
     s += rp(681, 713, 719, 731, 'fill="#f4f4f4"') + tp(700, 727, 'P13', 'class="montage-etiquette petite" text-anchor="middle"');
     // Pastilles pour pinces crocodile : cuivre jusqu'au bord, trou oblong, nom dessous.
     [[445, 540, '0'], [555, 650, '1'], [665, 740, '2'], [752, 845, 'VCC'], [855, 950, 'GND']].forEach(([x1, x2, nom]) => {
@@ -484,8 +493,13 @@ function dessinFil(f, fin, o) {
 
 function dessinerScene(etat) {
     const basCarte = etat.carte === 'dfr' ? 700 : etat.carte === 'bitmaker' ? BM_BAS : GROVE_PCB.y + GROVE_PCB.l;
-    const hauteur = disposer(etat.modules, basCarte);
+    let hauteur = disposer(etat.modules, basCarte);
     let bas = etat.carte === 'dfr' ? dessinCarteDfr() : etat.carte === 'bitmaker' ? dessinCarteBitmaker() : dessinCarteGrove();
+    // Ruban sur les LED de la BitMaker : legende sous la carte, a la place du module et de son cable.
+    const surCarte = etat.modules.find(m => m.surCarte);
+    if (surCarte) hauteur = Math.max(hauteur, basCarte + 50);
+    if (surCarte) bas += texte(LARGEUR / 2, basCarte + 30, echap(surCarte.nom + ' · ' + surCarte.etiquette +
+                               (surCarte.note ? ' · ' + surCarte.note : '')), 'class="montage-note" text-anchor="middle"');
     for (const m of etat.modules) {
         if (m.x === undefined) continue;
         const fin = arrivee(m), n = m.fils.length;
@@ -555,7 +569,23 @@ function redessiner() {
         ? etat.modules.map(m => '<li>' + echap(m.nom) + ' : ' + echap(m.etiquette) + (m.note ? ' (' + echap(m.note) + ')' : '') +
                                 (m.alerte ? ' — ' + echap(m.alerte.replace('⚠ ', '')) : '') + '</li>').join('')
         : '<li>Aucun module branché pour l\'instant.</li>';
+    rubanSurCarte = !!etat.modules.find(m => m.surCarte);
+    copierLedsCarte();
     ajusterEchelle();
+}
+
+// LED de la BitMaker : elles reprennent les couleurs que « Peripheriques » donne au ruban (#grove-ruban, un.js),
+// sans autre source d'etat : les deux affichages ne peuvent pas diverger.
+let rubanSurCarte = false;
+function copierLedsCarte() {
+    const leds = document.querySelectorAll('#grove-ruban .grove-led');
+    svgBas.querySelectorAll('.montage-pixel').forEach(pixel => {
+        const led = rubanSurCarte && leds[Number(pixel.dataset.led)];
+        const fond = led ? led.style.background : '';
+        const allumee = fond && !/42, 42, 42|#2a2a2a/i.test(fond);
+        pixel.style.fill = allumee ? fond : '';
+        pixel.style.filter = allumee ? `drop-shadow(0 0 4px ${fond})` : '';
+    });
 }
 
 function basculer(ouvrir) {
@@ -598,6 +628,9 @@ function installer() {
         attente = setTimeout(redessiner, 150);
     });
     new ResizeObserver(ajusterEchelle).observe(scene.parentElement.parentElement);
+    const ruban = $('grove-ruban');
+    if (ruban) new MutationObserver(() => { if (ouvert && rubanSurCarte) copierLedsCarte(); })
+        .observe(ruban, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
     redessiner();
     return true;
 }

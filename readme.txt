@@ -1367,3 +1367,8 @@ batterie JST, micro USB et selecteur 5 V / 3,3 V (en partie sous la micro:bit). 
 elle est le signal 1 (fil jaune) ; un module a deux broches va sur le port qui les porte toutes les deux (joystick
 X = P0, Y = P1 sur ~P0). P1 et P2 sortant chacune sur deux ports, "port partage" signale aussi deux modules qui
 utilisent la meme broche par deux ports differents. P13 n'a pas de port : "P13 reservee aux LED de la carte".
+Ruban RGB sur P13 avec la BitMaker : ce sont les 4 LED de la carte. Pas de module ni de cable ; la legende
+"Ruban RGB · LED de la carte (P13)" s'affiche sous la carte et les 4 LED dessinees prennent en direct les couleurs du
+ruban de "Peripheriques" (LED n° 0 a 3 = Pixel 0 a 3), eteintes a la reinitialisation. Au-dela de 4 LED dans le bloc,
+la legende ajoute "la carte n'a que 4 LED". Pour un autre module, choisir une broche qui a un port (P8, P14, P15, P16
+sont les plus sures pour un module numerique ; P0, P1, P2 pour un capteur analogique).
