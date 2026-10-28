@@ -364,6 +364,17 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    et la mention « la carte n'a que 4 LED »), extinction à la réinitialisation ;
    sur la carte Grove, le même ruban reste sur la pastille P13. Les couleurs sont
    recopiées de `#grove-ruban` (MutationObserver), sans toucher à `un.js`.
+   **Montage dans la colonne** (maquette B choisie par l'utilisateur) : une seule
+   scène, déplacée entre `#montage-colonne-zone` et la vue agrandie ; trois modes
+   (carte seule, colonne, agrandi), seuil de 480 px avec 24 px d'hystérésis
+   (ResizeObserver sur `#simulator-container`). Vérifié : montage BitMaker dans
+   une colonne de 538 px, carte seule et bouton « Voir le montage » à 303 px,
+   retour automatique en élargissant, « Agrandir » puis Échap ou « Fermer »
+   (choix de la carte déplacé avec la scène, focus rendu au bon bouton), thèmes
+   sombre et clair. Un premier essai de redimensionnement est resté sans effet
+   dans le volet de test en arrière-plan (images suspendues) ; refait ensuite,
+   les deux sens ont fonctionné. À revoir sur un vrai poste en faisant glisser la
+   poignée de la colonne.
 
 ## Écarté volontairement
 

@@ -2,6 +2,11 @@
 // (Grove Shield v2.0 ou BitMaker V2 de Seeed, au choix, ou carte moteurs DFRobot DFR0548), les modules du programme
 // disposes autour et relies par leurs cables.
 //
+// Ou s'affiche le montage : dans la colonne du simulateur, a la place de la carte seule, des qu'un bloc
+// d'extension est pose et que la colonne fait au moins 480 px (en dessous, modules et etiquettes seraient
+// illisibles : la carte seule reste, avec le bouton « Voir le montage ») ; « Agrandir » ouvre la meme scene
+// par-dessus la zone de blocs. Une seule scene, deplacee d'un endroit a l'autre.
+//
 // Le montage est un dessin statique : il montre OU chaque module est branche, d'apres les blocs
 // poses. L'etat des modules (LED, curseurs, moteurs qui tournent) reste dans la liste
 // « Peripheriques » du simulateur. La carte micro:bit n'est pas copiee : #microbit-board est
@@ -523,7 +528,13 @@ const panneau = $('montage-panneau'), scene = $('montage-scene'), bouton = $('bt
 const svgBas = $('montage-svg-bas'), svgHaut = $('montage-svg-haut'), place = $('montage-carte');
 const titre = $('montage-sous-titre'), resume = $('montage-resume'), fermer = $('montage-fermer');
 const choix = $('montage-choix'), choixAuto = $('montage-choix-auto');
-let ouvert = false, hauteurScene = 600, emplacement = null, attente = null;
+const colonne = $('montage-colonne'), zoneColonne = $('montage-colonne-zone'), outilsColonne = $('montage-colonne-outils');
+const agrandir = $('montage-agrandir'), console_ = $('simulateur-console'), conteneur = $('simulator-container');
+const zoneGrand = panneau ? panneau.querySelector('.montage-zone') : null;
+const enteteGrand = panneau ? panneau.querySelector('.montage-entete') : null;
+// mode : 'carte' (carte seule), 'colonne' (montage dans la colonne) ou 'grand' (par-dessus les blocs).
+let mode = 'carte', grandDemande = false, utile = false, hauteurScene = 600, emplacement = null, attente = null;
+const LARGEUR_COLONNE = 480, MARGE_COLONNE = 24;   // hysteresis : la barre de defilement ne fait pas osciller l'affichage
 
 // Carte Grove ou BitMaker, memorisee dans le navigateur (Grove par defaut, ou si le stockage est indisponible).
 const CLE_CARTE = 'montageCarte';
@@ -532,7 +543,7 @@ function choixCarte() {
 }
 
 function ajusterEchelle() {
-    if (!ouvert) return;
+    if (mode === 'carte') return;
     // La scene garde ses unites (1000 de large) ; le cadre porte la place reellement occupee.
     const cadre = scene.parentElement, zone = cadre.parentElement;
     // Ajuste a la largeur (defilement vertical si besoin) : ajuster aussi a la hauteur rendait tout illisible.
@@ -544,9 +555,10 @@ function ajusterEchelle() {
 
 function redessiner() {
     const etat = lireMontage();
-    if (bouton) bouton.hidden = !etat.utile;
-    if (!etat.utile && ouvert) basculer(false);
-    if (!ouvert) return;
+    utile = etat.utile;
+    if (!utile) grandDemande = false;
+    appliquerMode();
+    if (mode === 'carte') return;
     const { bas, hauteur } = dessinerScene(etat);
     hauteurScene = hauteur;
     scene.style.height = hauteur + 'px';
@@ -588,31 +600,68 @@ function copierLedsCarte() {
     });
 }
 
-function basculer(ouvrir) {
-    const carte = $('microbit-board'), cadre = $('carte-cadre');
-    if (!carte || ouvrir === ouvert) return;
-    ouvert = ouvrir;
-    panneau.hidden = !ouvrir;
-    bouton.setAttribute('aria-expanded', String(ouvrir));
-    bouton.textContent = ouvrir ? '🔌 Fermer le montage' : '🔌 Voir le montage';
-    if (ouvrir) {
-        // La carte change de parent : ses ecouteurs et identifiants la suivent.
-        emplacement = { parent: carte.parentNode, suivant: carte.nextSibling };
-        place.appendChild(carte);
-        cadre.classList.add('montage-carte-absente');
-        redessiner();
-        fermer.focus();
-    } else {
-        emplacement.parent.insertBefore(carte, emplacement.suivant);
-        cadre.classList.remove('montage-carte-absente');
-        bouton.focus();
+function colonneAssezLarge() {
+    if (!conteneur) return false;
+    const st = getComputedStyle(conteneur);
+    const largeur = conteneur.clientWidth - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight);
+    return largeur >= LARGEUR_COLONNE - (mode === 'colonne' ? MARGE_COLONNE : 0);
+}
+
+/** Place la carte, la scene et le choix de la carte d'extension selon le mode voulu. */
+function appliquerMode() {
+    const carte = $('microbit-board'), cadreCarte = $('carte-cadre'), cadreScene = scene.parentElement;
+    if (!carte) return;
+    const enColonne = utile && colonneAssezLarge();
+    const voulu = utile && grandDemande ? 'grand' : enColonne ? 'colonne' : 'carte';
+    const ancien = mode;
+    if (voulu !== ancien) {
+        mode = voulu;
+        if (voulu === 'carte') {
+            if (emplacement) emplacement.parent.insertBefore(carte, emplacement.suivant);
+        } else if (carte.parentNode !== place) {
+            // La carte change de parent : ses ecouteurs et identifiants la suivent.
+            emplacement = { parent: carte.parentNode, suivant: carte.nextSibling };
+            place.appendChild(carte);
+        }
+        // Scene et choix de la carte : dans la colonne, ou dans l'en-tete de la vue agrandie.
+        if (voulu === 'grand') {
+            zoneGrand.appendChild(cadreScene);
+            enteteGrand.insertBefore(choixAuto, fermer);
+            enteteGrand.insertBefore(choix, choixAuto);
+        } else if (voulu === 'colonne') {
+            zoneColonne.appendChild(cadreScene);
+            outilsColonne.insertBefore(choix, agrandir);
+            outilsColonne.insertBefore(choixAuto, agrandir);
+        }
+    }
+    // Ce que montre la colonne : la carte seule, le montage, ou un rappel quand il est agrandi.
+    panneau.hidden = mode !== 'grand';
+    colonne.hidden = !(mode === 'colonne' || (mode === 'grand' && enColonne));
+    colonne.classList.toggle('agrandi', mode === 'grand');
+    console_.classList.toggle('montage-en-colonne', !colonne.hidden);
+    cadreCarte.classList.toggle('montage-carte-absente', mode === 'grand' && !enColonne);
+    bouton.hidden = !(utile && !enColonne);
+    bouton.setAttribute('aria-expanded', String(mode === 'grand'));
+    bouton.textContent = mode === 'grand' ? '🔌 Fermer le montage' : '🔌 Voir le montage';
+    agrandir.setAttribute('aria-expanded', String(mode === 'grand'));
+    if (voulu !== ancien) {
+        if (voulu === 'grand') fermer.focus();
+        else if (ancien === 'grand') (voulu === 'colonne' ? agrandir : bouton).focus();
+        if (voulu !== 'carte') { Blockly.svgResize(window.workspace); requestAnimationFrame(() => redessiner()); }
+        else Blockly.svgResize(window.workspace);
     }
 }
 
+function ouvrirGrand(ouvrir) {
+    grandDemande = ouvrir;
+    appliquerMode();
+}
+
 function installer() {
-    if (!panneau || !bouton || !window.workspace) return false;
-    bouton.addEventListener('click', () => basculer(!ouvert));
-    fermer.addEventListener('click', () => basculer(false));
+    if (!panneau || !bouton || !colonne || !window.workspace) return false;
+    bouton.addEventListener('click', () => ouvrirGrand(mode !== 'grand'));
+    fermer.addEventListener('click', () => ouvrirGrand(false));
+    agrandir.addEventListener('click', () => ouvrirGrand(true));
     if (choix) {
         const radio = choix.querySelector(`input[value="${choixCarte()}"]`);
         if (radio) radio.checked = true;
@@ -621,15 +670,17 @@ function installer() {
             redessiner();
         });
     }
-    document.addEventListener('keydown', e => { if (ouvert && e.key === 'Escape') { e.preventDefault(); basculer(false); } });
+    document.addEventListener('keydown', e => { if (mode === 'grand' && e.key === 'Escape') { e.preventDefault(); ouvrirGrand(false); } });
     window.workspace.addChangeListener(e => {
         if (e.isUiEvent) return;
         clearTimeout(attente);
         attente = setTimeout(redessiner, 150);
     });
-    new ResizeObserver(ajusterEchelle).observe(scene.parentElement.parentElement);
+    // Colonne redimensionnee (poignee, fenetre) : montage sur place ou carte seule, puis mise a l'echelle.
+    new ResizeObserver(() => { appliquerMode(); ajusterEchelle(); }).observe(conteneur);
+    new ResizeObserver(ajusterEchelle).observe(zoneGrand);
     const ruban = $('grove-ruban');
-    if (ruban) new MutationObserver(() => { if (ouvert && rubanSurCarte) copierLedsCarte(); })
+    if (ruban) new MutationObserver(() => { if (mode !== 'carte' && rubanSurCarte) copierLedsCarte(); })
         .observe(ruban, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
     redessiner();
     return true;

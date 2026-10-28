@@ -928,6 +928,21 @@
     #btn-montage { background: #0b7285; width: 100%; font-size: 15px; padding: 10px; box-sizing: border-box; margin: 0; }
     #btn-montage:hover { background: #0f8aa0; }
     #btn-montage[hidden] { display: none; }
+    /* Montage dans la colonne : il prend la place de la carte seule ; boutons d'action en ligne dessous. */
+    #montage-colonne { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    #montage-colonne[hidden] { display: none; }
+    .montage-colonne-outils { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 12px; }
+    .montage-colonne-outils .montage-choix, .montage-colonne-outils .montage-choix-auto { margin: 0; color: var(--texte-chrome); }
+    .montage-agrandir { min-height: 44px; padding: 8px 14px; margin: 0 0 0 auto; }
+    .montage-colonne-zone { display: flex; justify-content: center; overflow: hidden; border-radius: 8px;
+        background: var(--fond-chrome-profond); padding: 8px; }
+    .montage-colonne-agrandi { display: none; margin: 0; padding: 16px; text-align: center; font-size: 13px;
+        border: 1px dashed var(--bordure-chrome); border-radius: 8px; color: var(--texte-chrome); }
+    #montage-colonne.agrandi .montage-colonne-zone, #montage-colonne.agrandi .montage-colonne-outils { display: none; }
+    #montage-colonne.agrandi .montage-colonne-agrandi { display: block; }
+    #simulateur-console.montage-en-colonne #carte-cadre { display: none; }
+    #simulateur-console.montage-en-colonne #simulateur-actions { width: 100%; flex-direction: row; flex-wrap: wrap; }
+    #simulateur-console.montage-en-colonne #simulateur-actions > button { flex: 1 1 150px; width: auto; }
     #carte-cadre.montage-carte-absente { align-items: center; }
     #carte-cadre.montage-carte-absente::after { content: "La carte est affichée dans le montage."; font-size: 13px;
         color: var(--texte-chrome); opacity: 0.8; text-align: center; }
@@ -1685,6 +1700,14 @@
     <div id="simulator-container">
       <h3>Simulateur visuel <span id="mb-version-tag">V2</span></h3>
       <div id="simulateur-console">
+      <!-- Montage dans la colonne (montage.js) : remplace la carte seule des qu'un bloc d'extension est pose -->
+      <div id="montage-colonne" hidden>
+        <div class="montage-colonne-outils" id="montage-colonne-outils">
+          <button id="montage-agrandir" class="montage-agrandir" aria-controls="montage-panneau" aria-expanded="false">⤢ Agrandir</button>
+        </div>
+        <div class="montage-colonne-zone" id="montage-colonne-zone"></div>
+        <p class="montage-colonne-agrandi">Le montage est affiché en grand, par-dessus les blocs.</p>
+      </div>
       <div id="carte-cadre">
       <div id="microbit-board">
           <!-- Dessin d'apres une photo de la carte (oct. 2026) : fond du circuit, trois triangles vert d'eau -->

@@ -1337,8 +1337,11 @@ position cumulee depuis la derniere reinitialisation en tours + degres (ex. "1 t
 Pas verifie sur une vraie carte. Pas de reconstruction des blocs a l'import d'un .py (ils deviennent des blocs "code").
 
 44. VUE MONTAGE : LA CARTE D'EXTENSION ET SES CABLES (oct. 2026)
-Des qu'un bloc Grove, Servos ou Carte moteurs DFR0548 est pose, le bouton "Voir le montage" apparait sous
-"Reinitialiser la simulation". Il ouvre, par-dessus la zone de blocs, un dessin du montage :
+Des qu'un bloc Grove, Servos ou Carte moteurs DFR0548 est pose, le montage remplace la carte seule dans la colonne
+du simulateur (oct. 2026), si elle fait au moins 480 px de large ; les boutons Secouer et Reinitialiser passent en
+ligne dessous, et "Agrandir" ouvre le meme montage par-dessus la zone de blocs. Colonne plus etroite (modules et
+etiquettes illisibles) : la carte seule reste, avec le bouton "Voir le montage" sous "Reinitialiser la simulation".
+Le passage de l'un a l'autre se fait tout seul quand on redimensionne la colonne. Le montage montre :
 - la micro:bit enfichee dans sa carte d'extension : carte Grove (Grove Shield for micro:bit v2.0 de Seeed : comme
   sur la vraie carte, 4 ports Grove alignes en bas, I2C, P0/P14, P1/P15, P2/P16, et 8 pastilles pour pinces
   crocodile, GND, P8, P12, P13 a gauche ; 3V3, P0, P1, P2 a droite), ou carte DFR0548 des qu'un bloc DFR0548 est
