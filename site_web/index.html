@@ -901,14 +901,15 @@
     #montage-carte #microbit-board { transform: none !important; }
     .montage-fil { fill: none; stroke-width: 3.2; stroke-linecap: round; }
     .montage-fil-ombre { fill: none; stroke: rgba(0,0,0,0.45); stroke-width: 5.4; stroke-linecap: round; }
-    .montage-serigraphie { fill: #f2f2f2; font: 600 15px sans-serif; }
-    .montage-serigraphie.petite { font-size: 12px; }
+    .montage-serigraphie { fill: #f2f2f2; font: 600 18px sans-serif; }   /* lisible une fois la scene reduite */
+    .montage-serigraphie.petite { font-size: 14px; }
     .montage-puce { fill: #fff; font: 600 10px sans-serif; }
     .montage-segments { fill: #ff3b30; font: 700 30px monospace; letter-spacing: 2px; }
     .montage-libelle { fill: var(--texte-chrome); font: 600 16px sans-serif; }
     .montage-note { fill: var(--texte-chrome); opacity: 0.8; font: 14px sans-serif; }
     .montage-note.alerte { fill: #ffb300; opacity: 1; }
     :root[data-theme="light"]:not([data-contrast="high"]) .montage-note.alerte { fill: #9a5b00; }
+    :root[data-theme="light"][data-contrast="high"] .montage-note.alerte { fill: #5c3300; }   /* sur blanc : 9:1 au lieu de 1,8:1 */
     .montage-aide { margin: 0; padding: 8px 14px; font-size: 13px; border-top: 1px solid var(--bordure-chrome); }
     .montage-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     #btn-montage { background: #0b7285; width: 100%; font-size: 15px; padding: 10px; box-sizing: border-box; margin: 0; }

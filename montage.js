@@ -9,13 +9,15 @@
 // identifiants et ses ecouteurs (broches, logo, boutons A et B, LED).
 //
 // Proportions : la micro:bit (52 mm) fait 280 unites, soit 5,4 unites par mm ; la carte Grove
-// (72 mm x 72 mm) en fait 388. La DFR0548 et la disposition de ses connecteurs sont stylisees.
+// (72 mm x 72 mm) en fait 388. La Grove Shield v2.0 suit les photos du fabricant (ports, pastilles,
+// connecteur) ; la DFR0548 et la disposition de ses connecteurs sont stylisees.
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const LARGEUR = 1000;                                   // largeur de la scene, en unites
 const CARTE = { x: 360, y: 20, l: 280, h: 230 };        // place de la micro:bit dans la scene
-const FENTE = { x: 340, y: 228, l: 320, h: 34 };        // fente noire du connecteur de la carte d'extension
+const FENTE = { x: 340, y: 228, l: 320, h: 34 };        // fente noire du connecteur de la carte d'extension (DFR0548)
+const FENTE_GROVE = { x: 344, y: 226, l: 312, h: 58 };  // connecteur de la Grove Shield v2.0 (35 a 46 mm du haut)
 const MODULE = { l: 170, h: 74 };                       // zone de dessin d'un module (hors libelles)
 
 // ---------- Couleurs des fils ----------
@@ -61,14 +63,23 @@ const BLOC_EXTENSION = /^(grove_|servo_|dfr_)/;
 // ---------- Cartes d'extension ----------
 // Chaque point de branchement donne l'origine des fils (x, y), leur direction de sortie (d)
 // et l'ecart entre fils voisins le long du connecteur (pas, dans le sens perpendiculaire).
+// Grove Shield v2.0 relevee sur les photos du fabricant : carte noire 72 x 72 mm (x 306 a 694, y 39 a 427)
+// echancree en haut entre deux oreilles, micro:bit couchee sur la moitie haute et enfichee dans le connecteur
+// du milieu, 4 ports Grove alignes en bas et ouverts vers le bas, 8 pastilles pour pinces crocodile sur les bords.
+const GROVE_PCB = { x: 306, y: 39, l: 388, oreille: 58, encoche: 65 };
 const PORTS_GROVE = {
-    'P0/P14': { x: 306, y: 330, d: [-1, 0] }, 'P1/P15': { x: 306, y: 450, d: [-1, 0] },
-    'P2/P16': { x: 694, y: 330, d: [1, 0] },  'I2C':    { x: 694, y: 450, d: [1, 0] },
+    'I2C':    { x: 388, y: 404, d: [0, 1] }, 'P0/P14': { x: 462, y: 404, d: [0, 1] },
+    'P1/P15': { x: 536, y: 404, d: [0, 1] }, 'P2/P16': { x: 611, y: 404, d: [0, 1] },
 };
 const PORT_DE_BROCHE = { pin0: 'P0/P14', pin14: 'P0/P14', pin1: 'P1/P15', pin15: 'P1/P15', pin2: 'P2/P16', pin16: 'P2/P16' };
-const RANGEE_GROVE = ['3V3', 'P0', 'P1', 'P2', 'P8', 'P12', 'P13', 'GND'];   // rangee de broches du bas
-const xRangee = i => 402 + i * 28;
-const Y_RANGEE = 562;
+// Pastilles (pinces crocodile ou fiches banane 4 mm) : GND, P8, P12, P13 a gauche ; 3V3, P0, P1, P2 a droite.
+const PASTILLES_GROVE = {
+    GND: { x: 322, y: 57, d: [-1, 0] },  P8: { x: 322, y: 115, d: [-1, 0] },
+    P12: { x: 322, y: 355, d: [-1, 0] }, P13: { x: 322, y: 406, d: [-1, 0] },
+    '3V3': { x: 678, y: 57, d: [1, 0] }, P0: { x: 678, y: 115, d: [1, 0] },
+    P1: { x: 678, y: 355, d: [1, 0] },   P2: { x: 678, y: 406, d: [1, 0] },
+};
+const Y_SOUS_GROVE = 446;   // passage du fil 3V3 sous la carte, vers les modules de gauche
 
 const GPIO_DFR = { P0: 340, P1: 380, P2: 420, P8: 460, P12: 500, P13: 340, P14: 380, P15: 420, P16: 460 };
 const GAUCHE_DFR = ['P0', 'P1', 'P2', 'P8', 'P12'];
@@ -147,8 +158,9 @@ function lireMontage() {
 }
 
 function filsPort(p) {
-    // Les 4 fils sortent cote a cote du connecteur, perpendiculairement a la direction de sortie.
-    return GROVE.map((c, i) => ({ x: p.x, y: p.y + (i - 1.5) * 8, d: p.d, c }));
+    // Les 4 fils sortent cote a cote du connecteur, perpendiculairement a la direction de sortie
+    // (vers le bas sur la Grove v2.0 : GND, 3V3, signal 2, signal 1 de gauche a droite, comme sur la carte).
+    return GROVE.map((c, i) => ({ x: p.x - p.d[1] * (i - 1.5) * 8, y: p.y + p.d[0] * (i - 1.5) * 8, d: p.d, c }));
 }
 function filsI2cDfr() {
     return GROVE.map((c, i) => ({ x: 720, y: 540 + (i - 1.5) * 8, d: [1, 0], c }));
@@ -163,11 +175,14 @@ function branchementGrove(pins) {
     }
     const autres = pins.filter(p => !PORT_DE_BROCHE[p]);
     if (autres.length) {
-        // Rangee de broches : un fil par signal, plus 3V3 et GND pris sur leurs propres broches.
+        // Pastilles du bord : un fil a pince crocodile par signal, plus GND (a gauche) et 3V3 (a droite, le fil
+        // passe sous la carte pour rejoindre le module, range a gauche avec les pastilles P8, P12 et P13).
         horsGrove = true;
-        const pinRangee = nom => ({ x: xRangee(RANGEE_GROVE.indexOf(nom)), y: Y_RANGEE, d: [0, 1] });
-        autres.forEach((p, i) => fils.push(Object.assign(pinRangee('P' + p.slice(3)), { c: i ? F.blanc : F.jaune })));
-        fils.push(Object.assign(pinRangee('3V3'), { c: F.rouge }), Object.assign(pinRangee('GND'), { c: F.noir }));
+        const pince = nom => Object.assign({ pince: true }, PASTILLES_GROVE[nom]);
+        autres.forEach((p, i) => { if (PASTILLES_GROVE['P' + p.slice(3)]) fils.push(Object.assign(pince('P' + p.slice(3)), { c: i ? F.blanc : F.jaune })); });
+        const v = PASTILLES_GROVE['3V3'];
+        fils.push(Object.assign(pince('GND'), { c: F.noir }),
+                  Object.assign(pince('3V3'), { c: F.rouge, passage: [[v.x + 46, v.y], [v.x + 46, Y_SOUS_GROVE], [GROVE_PCB.x - 20, Y_SOUS_GROVE]] }));
         etiquettes.push(autres.map(p => 'P' + p.slice(3)).join('/'));
     }
     const occupe = [...new Set(pins.map(p => PORT_DE_BROCHE[p] || 'P' + p.slice(3)))];
@@ -205,19 +220,25 @@ function disposer(modules, basCarte) {
         cotes[c].sort((a, b) => a.ancre[1] - b.ancre[1]).forEach(m => {
             m.y = Math.max(y, m.ancre[1] - 60);
             m.x = c === 'g' ? 30 : LARGEUR - 30 - MODULE.l;
-            y = m.y + MODULE.h + 56;
+            y = m.y + MODULE.h + 76;
             bas = Math.max(bas, y);
         });
     }
-    // Rangee du bas, entre les deux colonnes, a la ligne si elle deborde.
-    let x = 240, y = basCarte + 90, rangee = 0;
-    cotes.b.sort((a, b) => a.ancre[0] - b.ancre[0]).forEach(m => {
-        if (x + MODULE.l > 760) { x = 240; rangee++; }
-        m.x = Math.max(x, rangee ? x : Math.min(m.ancre[0] - MODULE.l / 2, 760 - MODULE.l));
-        m.y = y + rangee * (MODULE.h + 70);
-        x = m.x + MODULE.l + 20;
-        bas = Math.max(bas, m.y + MODULE.h + 56);
-    });
+    // Rangee du bas (les ports Grove v2.0 sont tous en bas) : chaque module sous son port, a la ligne si elle deborde.
+    // Chaque ligne est centree sous ses ports, sans sortir de la scene.
+    const [xMin, xMax, pas] = [30, LARGEUR - 30, MODULE.l + 20];
+    const parLigne = Math.floor((xMax - xMin + 20) / pas);
+    const tries = cotes.b.sort((a, b) => a.ancre[0] - b.ancre[0]);
+    for (let i = 0; i < tries.length; i += parLigne) {
+        const ligne = tries.slice(i, i + parLigne), largeur = ligne.length * pas - 20;
+        const centre = ligne.reduce((s, m) => s + m.ancre[0], 0) / ligne.length;
+        const x0 = Math.max(xMin, Math.min(centre - largeur / 2, xMax - largeur));
+        ligne.forEach((m, k) => {
+            m.x = x0 + k * pas;
+            m.y = basCarte + 90 + (i / parLigne) * (MODULE.h + 90);
+            bas = Math.max(bas, m.y + MODULE.h + 76);
+        });
+    }
     return bas + 10;
 }
 
@@ -238,19 +259,36 @@ const echap = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;
 function trou(x, y) { return cercle(x, y, 9, 'fill="#c9a54a"') + cercle(x, y, 5, 'fill="#0b0b0b"'); }
 
 function dessinCarteGrove() {
-    let s = r(306, 200, 388, 388, 'rx="14" fill="#1f2328" stroke="#3b414a" stroke-width="2"');
-    s += trou(330, 224) + trou(670, 224) + trou(330, 564) + trou(670, 564);
-    for (const [nom, p] of Object.entries(PORTS_GROVE)) {
-        const g = p.d[0] < 0, x = g ? p.x : p.x - 30;
-        s += r(x, p.y - 30, 30, 60, 'rx="3" fill="#f2f2f2" stroke="#b9b9b9"');
-        s += r(g ? x + 4 : x + 14, p.y - 22, 12, 44, 'rx="2" fill="#cfcfcf"');
-        s += texte(g ? x + 40 : x - 10, p.y + 6, nom, `class="montage-serigraphie" text-anchor="${g ? 'start' : 'end'}"`);
+    const { x, y, l, oreille, encoche } = GROVE_PCB, droite = x + l, bas = y + l;
+    // Carte noire echancree en haut : la micro:bit couvre l'echancrure.
+    let s = `<path d="M${x + 8} ${y} H${x + oreille} V${y + encoche} H${droite - oreille} V${y} H${droite - 8} Q${droite} ${y} ${droite} ${y + 8} ` +
+            `V${bas - 8} Q${droite} ${bas} ${droite - 8} ${bas} H${x + 8} Q${x} ${bas} ${x} ${bas - 8} V${y + 8} Q${x} ${y} ${x + 8} ${y} Z" ` +
+            'fill="#111214" stroke="#34383e" stroke-width="2"/>';
+    // Prise micro USB et voyant PWR a gauche, connecteur plat a droite, quelques composants.
+    s += r(x - 4, 166, 30, 30, 'rx="3" fill="#b9bec4" stroke="#7d838a"') + r(x + 2, 174, 18, 14, 'rx="2" fill="#5d636a"');
+    // Textes verticaux, comme sur la carte : a l'horizontale, la micro:bit les cacherait.
+    const vertical = (tx, ty, t) => texte(tx, ty, t, `class="montage-serigraphie petite" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${tx} ${ty})"`);
+    s += vertical(x + 40, 181, 'USB');
+    s += r(x + 14, 250, 10, 6, 'fill="#e8e8e8"') + vertical(x + 40, 253, 'PWR');
+    s += r(droite - 30, 186, 18, 80, 'rx="2" fill="#e6dcc6" stroke="#9b917c"') + r(droite - 26, 192, 6, 68, 'fill="#3b3b3b"');
+    [[372, 300], [398, 300], [600, 300], [626, 300]].forEach(([cx, cy]) => {
+        s += r(cx, cy, 14, 8, 'fill="#c9a26a"') + r(cx + 4, cy, 6, 8, 'fill="#3a2f22"'); });
+    // Pastilles pour pinces crocodile : cuivre au bord, nom sous forme verticale comme sur la carte.
+    for (const [nom, p] of Object.entries(PASTILLES_GROVE)) {
+        const g = p.d[0] < 0, bord = g ? x : droite - 34;
+        s += r(bord, p.y - 17, 34, 34, 'rx="9" fill="#d9822b"') + cercle(p.x, p.y, 12, 'fill="#f0b45e"') +
+             cercle(p.x, p.y, 7, 'style="fill: var(--fond-chrome)"');
+        const tx = g ? p.x + 26 : p.x - 26;
+        s += texte(tx, p.y, nom, `class="montage-serigraphie petite" text-anchor="middle" dominant-baseline="central" transform="rotate(${g ? 90 : -90} ${tx} ${p.y})"`);
     }
-    RANGEE_GROVE.forEach((nom, i) => {
-        s += r(xRangee(i) - 7, Y_RANGEE - 14, 14, 14, 'fill="#0e0e0e"') + r(xRangee(i) - 3, Y_RANGEE - 10, 6, 6, 'fill="#c9a54a"');
-        s += texte(xRangee(i), Y_RANGEE - 22, nom, 'class="montage-serigraphie petite" text-anchor="middle"');
-    });
-    s += texte(500, 510, 'Grove Shield for micro:bit v2.0', 'class="montage-serigraphie" text-anchor="middle"');
+    // Ports Grove blancs, ouverts vers le bas ; leur nom est imprime dessous sur la carte, mais les cables le
+    // cacheraient : il passe au-dessus, a la place des noms de fils (GND, 3V3...) trop petits a cette echelle.
+    for (const [nom, p] of Object.entries(PORTS_GROVE)) {
+        s += r(p.x - 27, p.y - 52, 54, 52, 'rx="3" fill="#f2f2f2" stroke="#b9b9b9"');
+        s += r(p.x - 20, p.y - 32, 40, 30, 'rx="2" fill="#d6d6d6" stroke="#c2c2c2"') + r(p.x - 8, p.y - 40, 16, 8, 'fill="#d6d6d6"');
+        [-12, -4, 4, 12].forEach(dx => { s += r(p.x + dx - 1.5, p.y - 26, 3, 14, 'fill="#c9a54a"'); });
+        s += texte(p.x, p.y - 62, nom, 'class="montage-serigraphie" text-anchor="middle"');
+    }
     return s;
 }
 
@@ -331,14 +369,29 @@ function dessinModule(m, cx, cy) {
 
 function dessinFil(f, fin, o) {
     // Courbe de Bezier : chaque extremite part dans sa direction de sortie, decalee le long du connecteur.
+    // Un fil peut d'abord suivre des points de passage (le 3V3 de la Grove contourne la carte par le bas).
     const e = { x: fin.x - fin.d[1] * o, y: fin.y + fin.d[0] * o };
-    const long = Math.max(50, Math.hypot(e.x - f.x, e.y - f.y) * 0.45);
-    const d = `M${f.x} ${f.y} C${f.x + f.d[0] * long} ${f.y + f.d[1] * long} ${e.x - fin.d[0] * long} ${e.y - fin.d[1] * long} ${e.x} ${e.y}`;
-    return `<path d="${d}" class="montage-fil-ombre"/><path d="${d}" stroke="${f.c}" class="montage-fil"/>`;
+    let d = `M${f.x} ${f.y}`, depart = f, dir = f.d;
+    for (const [px, py] of f.passage || []) {
+        d += ` L${px} ${py}`;
+        const n = Math.hypot(px - depart.x, py - depart.y) || 1;
+        dir = [(px - depart.x) / n, (py - depart.y) / n];
+        depart = { x: px, y: py };
+    }
+    const long = Math.max(50, Math.hypot(e.x - depart.x, e.y - depart.y) * 0.45);
+    d += ` C${depart.x + dir[0] * long} ${depart.y + dir[1] * long} ${e.x - fin.d[0] * long} ${e.y - fin.d[1] * long} ${e.x} ${e.y}`;
+    let s = `<path d="${d}" class="montage-fil-ombre" stroke-linejoin="round"/><path d="${d}" stroke="${f.c}" class="montage-fil" stroke-linejoin="round"/>`;
+    if (f.pince) {
+        // Pince crocodile serree sur la pastille, dans l'axe du fil.
+        const a = Math.atan2(f.d[1], f.d[0]) * 180 / Math.PI;
+        s += `<g transform="translate(${f.x} ${f.y}) rotate(${a})">` + r(-4, -6, 30, 12, `rx="5" fill="${f.c}" stroke="#555"`) +
+             r(-8, -4, 10, 8, 'rx="2" fill="#c0c4c8" stroke="#6b7075"') + '</g>';
+    }
+    return s;
 }
 
 function dessinerScene(etat) {
-    const basCarte = etat.carte === 'dfr' ? 700 : 588;
+    const basCarte = etat.carte === 'dfr' ? 700 : GROVE_PCB.y + GROVE_PCB.l;
     const hauteur = disposer(etat.modules, basCarte);
     let bas = etat.carte === 'dfr' ? dessinCarteDfr() : dessinCarteGrove();
     for (const m of etat.modules) {
@@ -350,9 +403,10 @@ function dessinerScene(etat) {
         if (m.x === undefined) continue;
         const cx = m.x + MODULE.l / 2, cy = m.y + MODULE.h / 2;
         bas += `<g class="montage-module">${dessinModule(m, cx, cy)}` +
-               texte(cx, m.y + MODULE.h + 22, echap(m.nom) + ' · ' + echap(m.etiquette), 'class="montage-libelle" text-anchor="middle"');
+               texte(cx, m.y + MODULE.h + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
+               texte(cx, m.y + MODULE.h + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
         const note = [m.alerte, m.note].filter(Boolean).join(' · ');
-        if (note) bas += texte(cx, m.y + MODULE.h + 42, echap(note), `class="montage-note${m.alerte ? ' alerte' : ''}" text-anchor="middle"`);
+        if (note) bas += texte(cx, m.y + MODULE.h + 62, echap(note), `class="montage-note${m.alerte ? ' alerte' : ''}" text-anchor="middle"`);
         bas += '</g>';
     }
     return { bas, hauteur };
@@ -385,8 +439,12 @@ function redessiner() {
     scene.style.height = hauteur + 'px';
     for (const svg of [svgBas, svgHaut]) svg.setAttribute('viewBox', `0 0 ${LARGEUR} ${hauteur}`);
     svgBas.innerHTML = bas;
-    svgHaut.innerHTML = r(FENTE.x, FENTE.y, FENTE.l, FENTE.h, 'rx="4" fill="#0b0b0b" stroke="#2b2b2b" stroke-width="2"') +
-                        r(FENTE.x + 6, FENTE.y + 4, FENTE.l - 12, 3, 'fill="#2a2a2a"');
+    const fente = etat.carte === 'dfr' ? FENTE : FENTE_GROVE;
+    svgHaut.innerHTML = r(fente.x, fente.y, fente.l, fente.h, 'rx="4" fill="#0b0b0b" stroke="#2b2b2b" stroke-width="2"') +
+                        r(fente.x + 6, fente.y + 4, fente.l - 12, 3, 'fill="#2a2a2a"') +
+                        // Pattes cuivrees du connecteur, visibles sous le boitier sur la Grove v2.0.
+                        (etat.carte === 'dfr' ? '' : Array.from({ length: 40 }, (_, i) =>
+                            r(fente.x + 10 + i * 7.3, fente.y + fente.h - 2, 3, 7, 'fill="#b87333"')).join(''));
     titre.textContent = etat.carte === 'dfr' ? 'Carte moteurs DFRobot DFR0548' : 'Carte Grove Shield for micro:bit v2.0 (Seeed)';
     resume.innerHTML = etat.modules.length
         ? etat.modules.map(m => '<li>' + echap(m.nom) + ' : ' + echap(m.etiquette) + (m.note ? ' (' + echap(m.note) + ')' : '') +

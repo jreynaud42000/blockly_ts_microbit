@@ -1339,16 +1339,21 @@ Pas verifie sur une vraie carte. Pas de reconstruction des blocs a l'import d'un
 44. VUE MONTAGE : LA CARTE D'EXTENSION ET SES CABLES (oct. 2026)
 Des qu'un bloc Grove, Servos ou Carte moteurs DFR0548 est pose, le bouton "Voir le montage" apparait sous
 "Reinitialiser la simulation". Il ouvre, par-dessus la zone de blocs, un dessin du montage :
-- la micro:bit enfichee dans sa carte d'extension : carte Grove (Grove Shield for micro:bit v2.0 de Seeed, 4 ports
-  P0/P14, P1/P15, P2/P16 et I2C, rangee de broches 3V3 P0 P1 P2 P8 P12 P13 GND), ou carte DFR0548 des qu'un bloc
-  DFR0548 est present (on ne peut pas enficher la micro:bit dans les deux a la fois) ;
+- la micro:bit enfichee dans sa carte d'extension : carte Grove (Grove Shield for micro:bit v2.0 de Seeed : comme
+  sur la vraie carte, 4 ports Grove alignes en bas, I2C, P0/P14, P1/P15, P2/P16, et 8 pastilles pour pinces
+  crocodile, GND, P8, P12, P13 a gauche ; 3V3, P0, P1, P2 a droite), ou carte DFR0548 des qu'un bloc DFR0548 est
+  present (on ne peut pas enficher la micro:bit dans les deux a la fois) ;
 - chaque module du programme autour de la carte, relie par son cable : cable Grove a 4 fils (jaune, blanc, rouge,
-  noir) depuis le port choisi dans le bloc ; fils separes depuis la rangee de broches pour P8, P12 et P13, avec la
-  mention "hors port Grove" (le port "P8 / P12" de la barre de LED n'existe pas sur la carte v2.0) ; borniers M1 a M4
+  noir), module sous son port ; pour P8, P12 et P13, fils a pinces crocodile depuis les pastilles (3V3 a droite,
+  son fil passe sous la carte), avec la mention "hors port Grove" (le port "P8 / P12" de la barre de LED n'existe
+  pas sur la carte v2.0) ; borniers M1 a M4
   pour les moteurs, deux borniers pour un pas a pas, connecteurs S1 a S8 pour les servos de la DFR0548.
 "port partage" signale deux modules branches au meme endroit (possible dans le programme, pas sur la table) ;
 "bus I2C partage" rappelle que plusieurs modules I2C se suivent sur le meme bus (un hub I2C sur la table).
 La carte micro:bit est deplacee dans le montage (pas copiee) : boutons, broches, logo et LED y fonctionnent comme
 d'habitude, et la simulation continue. Le montage montre ou chaque module est branche ; l'etat des modules (valeurs,
 LED, moteurs) reste dans "Peripheriques". Fermer : bouton "Fermer", "Fermer le montage" ou touche Echap.
-La disposition des connecteurs sur les cartes Grove et DFR0548 est stylisee (pas relevee sur une photo).
+La carte Grove est dessinee d'apres les photos du fabricant (72 x 72 mm, echancrure, ports, pastilles, prise micro
+USB, voyant PWR, connecteur plat) ; les noms des fils (GND, 3V3, SDA, SCL...) imprimes au-dessus des ports sont omis,
+trop petits a cette echelle, et le nom des ports est place au-dessus d'eux pour ne pas etre cache par les cables.
+La disposition des connecteurs sur la DFR0548 est stylisee (pas relevee sur une photo).

@@ -342,10 +342,13 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    partagé », « hors port Grove ») ; carte DFR0548 avec moteur M1, pas à pas
    M3 + M4, servo S2, modules sur P0 et P13, OLED ; la carte revient à sa place à
    la fermeture (Échap, focus rendu au bouton), boutons et broches cliquables dans
-   le montage, thèmes sombre, clair et contraste élevé. À comparer avec les vraies
-   cartes : la place des ports sur la Grove Shield v2.0 et des connecteurs sur la
-   DFR0548 est stylisée (aucune photo relevée), seuls le nombre et le nom des ports
-   Grove viennent des fiches du fabricant.
+   le montage, thèmes sombre, clair et contraste élevé. Carte Grove redessinée
+   ensuite dans Mode classe d'après les photos du produit (The Pi Hut, vue de dessus
+   avec règle) : ports en bas, 8 pastilles pour pinces crocodile, modules en rangée
+   sous leurs ports ; reprise ici à l'identique, non rouverte dans le navigateur
+   (la rangée du bas, plus large, sert aussi aux servos de la DFR0548). Positions
+   Grove mesurées sur photo, à quelques millimètres près ; la DFR0548 reste stylisée
+   (aucune photo relevée).
 
 ## Écarté volontairement
 
