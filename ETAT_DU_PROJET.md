@@ -383,6 +383,20 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    DFR0548 à la place du choix de carte ; aucune erreur console. À comparer avec
    une vraie carte : l'ordre des vis du bornier (lu sur la sérigraphie du schéma,
    M4 2B- à M1 1A+ de gauche à droite avant le demi-tour).
+   **Montage en direct** (variante 1 choisie par l'utilisateur : valeur sous le
+   dessin). `majVivant()` recopie toutes les 200 ms l'affichage de
+   « Périphériques » (lecteurs par module dans `LECTEURS`, clé du module dans
+   `data-cle` : `1`..`4` pour les moteurs, `DFR S1`, `P0`...), sans toucher à
+   `un.js`. Vérifié en simulation : roue du moteur M1 à 150, servo DFR S1 à 45°,
+   LED P1 allumée, buzzer P2 qui sonne, OLED « Bonjour ! » ; ultrason et
+   potentiomètre qui suivent leurs curseurs (repère du potentiomètre tourné) ;
+   bouton P0 appuyé dans le montage → `simu_groveEntree('bouton')` = 1 puis 0 ;
+   bouton du joystick au clavier (Espace) ; couleur de la valeur en sombre, clair
+   et contraste élevé ; aucune erreur console. Piège de test : les blocs ajoutés
+   par script n'émettent pas d'événement dans le navigateur intégré, le code
+   n'est donc pas régénéré ; `workspace.fireChangeListener(new BlockMove(bloc))`
+   le force, et le premier lancement après chargement par script reste muet
+   (relancer).
 
 ## Écarté volontairement
 
