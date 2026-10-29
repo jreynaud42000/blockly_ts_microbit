@@ -397,6 +397,13 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    n'est donc pas régénéré ; `workspace.fireChangeListener(new BlockMove(bloc))`
    le force, et le premier lancement après chargement par script reste muet
    (relancer).
+   **Réglages des capteurs** (mélange choisi par l'utilisateur : liste réduite aux
+   réglages + titre repliable, déplié par défaut, mémorisé sous
+   `montageReglagesReplies`). `majReglages()` pose `montage-reglages` sur
+   `#grove-panneau` en mode colonne ; les sections masquées restent mises à jour
+   par `un.js`. Vérifié : LCD, bouton, ultrason, LED → la liste ne montre que
+   l'ultrason et la case « maintenu enfoncé » ; repli et dépli mémorisés ; liste
+   complète en vue agrandie ; LCD du montage bleu, texte blanc « Bonjour ».
 
 ## Écarté volontairement
 
