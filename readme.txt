@@ -1359,7 +1359,13 @@ LED, moteurs) reste dans "Peripheriques". Fermer : bouton "Fermer", "Fermer le m
 La carte Grove est dessinee d'apres les photos du fabricant (72 x 72 mm, echancrure, ports, pastilles, prise micro
 USB, voyant PWR, connecteur plat) ; les noms des fils (GND, 3V3, SDA, SCL...) imprimes au-dessus des ports sont omis,
 trop petits a cette echelle, et le nom des ports est place au-dessus d'eux pour ne pas etre cache par les cables.
-La disposition des connecteurs sur la DFR0548 est stylisee (pas relevee sur une photo).
+DFR0548 dessinee d'apres le schema "Board Overview" du wiki DFRobot (oct. 2026), tournee d'un demi-tour pour que la
+micro:bit reste a l'endroit (sur la carte, son connecteur est en bas) : bornier vert de 8 vis en bas (M1 : 1A+ 1A- ;
+M2 : 1B+ 1B- ; M3 : 2A+ 2A- ; M4 : 2B+ 2B-), bornier d'alimentation - + (3,5 a 5,5 V), prise jack, interrupteur
+ON/OFF et voyant PWR a gauche ; a droite, les servos S1 a S8 (colonnes S, VIN, GND), les broches P0, P1, P2, P8,
+P12 a P16 (colonnes P, 3V3, GND) et le connecteur IIC (D, C, G, V). Plastique des broches vert, rouge et noir comme
+sur la carte, avec le nom de chaque colonne. Moteurs : 2 fils vers le bas depuis leurs vis ; pas a pas : 4 fils sur
+deux moteurs voisins ; servos et modules : 3 fils vers la droite depuis leur rangee ; module I2C : C = SCL, D = SDA.
 Choix de la carte (oct. 2026) : en tete du montage, "Carte d'extension" propose Grove Shield v2.0 ou BitMaker V2
 (boutons radio, choix memorise dans le navigateur, Grove par defaut). Avec des blocs DFR0548, le choix disparait :
 "Carte DFR0548 : choisie car le programme utilise ses blocs".

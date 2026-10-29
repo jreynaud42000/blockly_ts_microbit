@@ -15,14 +15,13 @@
 //
 // Proportions : la micro:bit (52 mm) fait 280 unites, soit 5,4 unites par mm ; la carte Grove
 // (72 mm x 72 mm) en fait 388. La Grove Shield v2.0 suit les photos du fabricant (ports, pastilles,
-// connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant ; la DFR0548 et la disposition
-// de ses connecteurs sont stylisees.
+// connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant, la DFR0548 le schema « Board
+// Overview » de DFRobot, tournee d'un demi-tour pour que la micro:bit reste a l'endroit.
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const LARGEUR = 1000;                                   // largeur de la scene, en unites
 const CARTE = { x: 360, y: 20, l: 280, h: 230 };        // place de la micro:bit dans la scene
-const FENTE = { x: 340, y: 228, l: 320, h: 34 };        // fente noire du connecteur de la carte d'extension (DFR0548)
 const FENTE_GROVE = { x: 344, y: 226, l: 312, h: 58 };  // connecteur de la Grove Shield v2.0 (35 a 46 mm du haut)
 const MODULE = { l: 170, h: 74 };                       // zone de dessin d'un module (hors libelles)
 
@@ -130,11 +129,29 @@ function branchementBitmaker(pins) {
     return res;
 }
 
-const GPIO_DFR = { P0: 340, P1: 380, P2: 420, P8: 460, P12: 500, P13: 340, P14: 380, P15: 420, P16: 460 };
-const GAUCHE_DFR = ['P0', 'P1', 'P2', 'P8', 'P12'];
-const MOTEURS_DFR = { 1: [280, 236, -1], 2: [280, 290, -1], 3: [720, 236, 1], 4: [720, 290, 1] };
-const Y_SERVOS_DFR = 680;
-const xServoDfr = n => 340 + (n - 1) * 40;
+// DFR0548 relevee sur le schema « Board Overview » du wiki DFRobot (750 x 673 px, carte de x 100 a 642 et de
+// y 37 a 662). Sur la carte, le connecteur de la micro:bit est en bas : on la tourne d'un demi-tour (connecteur
+// en haut, sous la micro:bit qui reste lisible), les inscriptions restant redessinees a l'endroit. Apres le
+// demi-tour : bornier M1 a M4 en bas, alimentation, prise jack et interrupteur a gauche, broches de la micro:bit
+// (P, 3V3, GND), servos (S, VIN, GND) et I2C a droite.
+const DFR = { x: 344, y: 161, k: 312 / 542, ox: 642, oy: 662 };
+const dx = px => DFR.x + (DFR.ox - px) * DFR.k, dy = py => DFR.y + (DFR.oy - py) * DFR.k;
+const DFR_BAS = dy(37);
+const FENTE = { x: dx(640), y: dy(545), l: 540 * DFR.k, h: 50 * DFR.k };
+// Vis du bornier (pixels du schema) : la borne + de chaque moteur, puis la borne -.
+const VIS_DFR = { 1: [538, 490], 2: [442, 394], 3: [346, 298], 4: [250, 202] };
+const NOMS_VIS_DFR = { 1: ['1A+', '1A-'], 2: ['1B+', '1B-'], 3: ['2A+', '2A-'], 4: ['2B+', '2B-'] };
+// Rangees de broches : ordonnee de chaque rangee sur le schema (pas de 24,3 px).
+const yRangDfr = i => 432.3 - i * 24.33;
+const GPIO_DFR = { P0: yRangDfr(0), P1: yRangDfr(1), P2: yRangDfr(2), P8: yRangDfr(3), P12: yRangDfr(4),
+                   P13: yRangDfr(5), P14: yRangDfr(6), P15: yRangDfr(7), P16: yRangDfr(8) };
+const COLONNES_GPIO = { S: 157, V: 133, G: 110 }, COLONNES_SERVO = { S: 268, V: 245, G: 220 };
+const I2C_DFR = { C: 157, D: 133, V: 205, G: 181 };   // ordonnees des rangees ; broches prises a x 110
+
+/** Fils d'une rangee a 3 broches (signal, V, G) vers la droite. */
+function filsRangeeDfr(colonnes, y, couleurs) {
+    return ['S', 'V', 'G'].map((c, i) => ({ x: dx(colonnes[c]), y: dy(y), d: [1, 0], c: couleurs[i] }));
+}
 
 // ---------- Lecture du programme ----------
 function broches(bloc, champs) {
@@ -159,10 +176,10 @@ function lireMontage() {
     for (const b of blocs) {
         if (dfr && /^dfr_(moteur|moteur_arreter)$/.test(b.type)) {
             const n = b.getFieldValue('MOTEUR');
-            if (!MOTEURS_DFR[n]) continue;
-            const [x, y, s] = MOTEURS_DFR[n];
+            if (!VIS_DFR[n]) continue;
+            const [plus, moins] = VIS_DFR[n];
             ajouter('M' + n, { nom: 'Moteur C.C.', picto: 'moteur', large: true, etiquette: 'M' + n, occupe: ['M' + n],
-                fils: [{ x, y: y - 10, d: [s, 0], c: F.rouge }, { x, y: y + 10, d: [s, 0], c: F.noir }] });
+                fils: [{ x: dx(plus), y: dy(10), d: [0, 1], c: F.rouge }, { x: dx(moins), y: dy(10), d: [0, 1], c: F.noir }] });
             continue;
         }
         if (dfr && b.type === 'dfr_pas_a_pas') {
@@ -170,16 +187,14 @@ function lireMontage() {
             const [a, c] = paire === '2' ? [3, 4] : [1, 2];
             const couleurs = modele === '42BYGH' ? [F.noir, F.vert, F.rouge, F.bleu] : [F.orange, F.rose, F.jaune, F.bleu];
             const fils = [];
-            [a, c].forEach((n, i) => { const [x, y, s] = MOTEURS_DFR[n];
-                fils.push({ x, y: y - 10, d: [s, 0], c: couleurs[i * 2] }, { x, y: y + 10, d: [s, 0], c: couleurs[i * 2 + 1] }); });
+            [a, c].forEach((n, i) => { VIS_DFR[n].forEach((vis, j) => fils.push({ x: dx(vis), y: dy(10), d: [0, 1], c: couleurs[i * 2 + j] })); });
             ajouter('PAS' + paire, { nom: 'Pas à pas ' + modele, picto: 'pas', modele, etiquette: 'M' + a + ' + M' + c, occupe: ['M' + a, 'M' + c], fils });
             continue;
         }
         if (dfr && b.type === 'dfr_servo') {
-            const n = Number(b.getFieldValue('SERVO')), x = xServoDfr(n);
+            const n = Number(b.getFieldValue('SERVO'));
             ajouter('S' + n, { nom: 'Servomoteur', picto: 'servo', etiquette: 'S' + n, occupe: ['S' + n],
-                fils: [{ x: x - 9, y: Y_SERVOS_DFR, d: [0, 1], c: F.orange }, { x, y: Y_SERVOS_DFR, d: [0, 1], c: F.rouge },
-                       { x: x + 9, y: Y_SERVOS_DFR, d: [0, 1], c: F.marron }] });
+                fils: filsRangeeDfr(COLONNES_SERVO, yRangDfr(n - 1), [F.orange, F.rouge, F.marron]) });
             continue;
         }
         const def = MODULES.find(m => m.motif.test(b.type));
@@ -219,7 +234,8 @@ function filsPort(p) {
     return GROVE.map((c, i) => ({ x: p.x - p.d[1] * (i - 1.5) * 8, y: p.y + p.d[0] * (i - 1.5) * 8, d: p.d, c }));
 }
 function filsI2cDfr() {
-    return GROVE.map((c, i) => ({ x: 720, y: 540 + (i - 1.5) * 8, d: [1, 0], c }));
+    // Connecteur IIC : C (SCL, fil jaune), D (SDA, blanc), V (rouge), G (noir).
+    return [['C', F.jaune], ['D', F.blanc], ['V', F.rouge], ['G', F.noir]].map(([b, c]) => ({ x: dx(110), y: dy(I2C_DFR[b]), d: [1, 0], c }));
 }
 
 function branchementGrove(pins) {
@@ -251,10 +267,8 @@ function branchementDfr(pins, servo) {
     pins.forEach((p, i) => {
         const nom = 'P' + p.slice(3), y = GPIO_DFR[nom];
         if (y === undefined) return;
-        const gauche = GAUCHE_DFR.includes(nom), x = gauche ? 280 : 720, d = [gauche ? -1 : 1, 0];
-        const sig = servo ? F.orange : (i ? F.blanc : F.jaune);
-        fils.push({ x, y: y - 9, d, c: sig });
-        if (!i) fils.push({ x, y, d, c: F.rouge }, { x, y: y + 9, d, c: servo ? F.marron : F.noir });
+        const rangee = filsRangeeDfr(COLONNES_GPIO, y, [servo ? F.orange : (i ? F.blanc : F.jaune), F.rouge, servo ? F.marron : F.noir]);
+        fils.push(...(i ? rangee.slice(0, 1) : rangee));
     });
     const noms = pins.map(p => 'P' + p.slice(3));
     return { fils, etiquette: noms.join(' + '), occupe: noms };
@@ -399,31 +413,48 @@ function dessinCarteBitmaker() {
 }
 
 function dessinCarteDfr() {
-    let s = r(280, 200, 440, 500, 'rx="14" fill="#15171a" stroke="#3b414a" stroke-width="2"');
-    s += trou(302, 680) + trou(698, 680) + trou(302, 222) + trou(698, 222);
-    for (const [n, [x, y, sens]] of Object.entries(MOTEURS_DFR)) {
-        const bx = sens < 0 ? x : x - 26;
-        s += r(bx, y - 24, 26, 48, 'rx="3" fill="#2f9e5b" stroke="#1d6b3c"');
-        s += cercle(bx + 13, y - 10, 7, 'fill="#c0c4c8" stroke="#6b7075"') + cercle(bx + 13, y + 10, 7, 'fill="#c0c4c8" stroke="#6b7075"');
-        s += texte(sens < 0 ? bx + 36 : bx - 10, y + 6, 'M' + n, `class="montage-serigraphie" text-anchor="${sens < 0 ? 'start' : 'end'}"`);
+    // Rectangle (x1, y1) - (x2, y2) du schema, retourne ; texte a l'endroit.
+    const rp = (x1, y1, x2, y2, att) => r(dx(x2), dy(y2), (x2 - x1) * DFR.k, (y2 - y1) * DFR.k, att);
+    const tp = (x, y, t, att) => texte(dx(x), dy(y), t, att);
+    const ser = (x, y, t, ancre) => tp(x, y, t, `class="montage-serigraphie micro" text-anchor="${ancre || 'middle'}"`);
+    let s = rp(100, 37, 642, 662, 'rx="9" fill="#15171a" stroke="#34383e" stroke-width="2"');
+    for (const [x, y] of [[130, 68], [615, 68], [130, 592], [615, 592]]) {
+        s += cercle(dx(x), dy(y), 18 * DFR.k, 'fill="#c9a54a"') + cercle(dx(x), dy(y), 9 * DFR.k, 'style="fill: var(--fond-chrome)"');
     }
-    for (const [nom, y] of Object.entries(GPIO_DFR)) {
-        const g = GAUCHE_DFR.includes(nom), x = g ? 280 : 706;
-        s += r(x, y - 15, 14, 30, 'fill="#0e0e0e"');
-        [-9, 0, 9].forEach(dy => { s += r(x + 4, y + dy - 3, 6, 6, 'fill="#c9a54a"'); });
-        s += texte(g ? x + 24 : x - 10, y + 5, nom, `class="montage-serigraphie petite" text-anchor="${g ? 'start' : 'end'}"`);
+    // Bornier vert des moteurs (8 vis), noms des bornes et des moteurs.
+    s += rp(178, 10, 565, 112, 'rx="3" fill="#2f9e5b" stroke="#1d6b3c"') + rp(178, 10, 565, 40, 'fill="#25804a"');
+    for (const [n, vis] of Object.entries(VIS_DFR)) {
+        vis.forEach((x, j) => {
+            s += cercle(dx(x), dy(72), 20 * DFR.k, 'fill="#c0c4c8" stroke="#6b7075"') +
+                 `<path d="M${dx(x) - 7} ${dy(72)} H${dx(x) + 7} M${dx(x)} ${dy(72) - 7} V${dy(72) + 7}" stroke="#6b7075" stroke-width="1.5"/>`;
+            s += ser(x, 126, NOMS_VIS_DFR[n][j]);
+        });
+        s += tp((vis[0] + vis[1]) / 2, 150, 'M' + n, 'class="montage-etiquette-claire" text-anchor="middle"');
     }
-    s += r(706, 522, 14, 36, 'fill="#0e0e0e"');
-    [-12, -4, 4, 12].forEach(dy => { s += r(710, 540 + dy - 3, 6, 6, 'fill="#c9a54a"'); });
-    s += texte(696, 545, 'I2C', 'class="montage-serigraphie petite" text-anchor="end"');
-    for (let n = 1; n <= 8; n++) {
-        const x = xServoDfr(n);
-        s += r(x - 15, Y_SERVOS_DFR - 14, 30, 14, 'fill="#0e0e0e"');
-        [['#f2c230', -9], ['#d63a2f', 0], ['#1b1b1b', 9]].forEach(([c, dx]) => {
-            s += r(x + dx - 3, Y_SERVOS_DFR - 10, 6, 6, `fill="${c}" stroke="#c9a54a"`); });
-        s += texte(x, Y_SERVOS_DFR - 22, 'S' + n, 'class="montage-serigraphie petite" text-anchor="middle"');
+    // Alimentation : bornier - +, prise jack, interrupteur ON/OFF, voyant PWR.
+    s += rp(588, 140, 640, 240, 'rx="3" fill="#2f9e5b" stroke="#1d6b3c"');
+    for (const y of [166, 212]) s += cercle(dx(607), dy(y), 17 * DFR.k, 'fill="#c0c4c8" stroke="#6b7075"');
+    s += tp(560, 160, '−', 'class="montage-serigraphie" text-anchor="middle"') + tp(560, 206, '+', 'class="montage-serigraphie" text-anchor="middle"');
+    s += ser(500, 245, '3,5 à 5,5 V');
+    s += rp(537, 250, 640, 345, 'rx="3" fill="#1b1b1b" stroke="#444"') + rp(560, 270, 600, 325, 'fill="#2b2b2b"');
+    s += rp(535, 350, 650, 478, 'rx="3" fill="#d9d9d9" stroke="#999"') + rp(640, 395, 690, 430, 'rx="2" fill="#2b2b2b"');
+    s += ser(520, 395, 'ON', 'end') + ser(520, 440, 'OFF', 'end');
+    s += rp(492, 400, 503, 410, 'fill="#e65a4a"') + ser(497, 425, 'PWR');
+    // Composants (pilotes de moteurs, PCA9685).
+    s += rp(322, 215, 368, 290, 'fill="#222"') + rp(378, 215, 424, 290, 'fill="#222"') + rp(318, 370, 380, 442, 'fill="#222"');
+    // Rangees de broches : couleur du plastique comme sur la carte, et nom de chaque colonne imprime.
+    const rangee = (colonnes, y) => [['G', '#2b2b2b'], ['V', '#b8352b'], ['S', '#5cae3e']].map(([c, coul]) =>
+        rp(colonnes[c] - 10, y - 10, colonnes[c] + 10, y + 10, `fill="${coul}" stroke="#111"`) +
+        rp(colonnes[c] - 3, y - 3, colonnes[c] + 3, y + 3, 'fill="#c9a54a"')).join('');
+    Object.entries(GPIO_DFR).forEach(([nom, y]) => { s += rangee(COLONNES_GPIO, y) + ser(175, y + 4, nom, 'end'); });
+    for (let n = 1; n <= 8; n++) s += rangee(COLONNES_SERVO, yRangDfr(n - 1)) + ser(285, yRangDfr(n - 1) + 4, 'S' + n, 'end');
+    [['GND', 110], ['3V3', 133], ['P', 157], ['GND', 220], ['VIN', 245], ['S', 268]].forEach(([t, x]) => { s += ser(x, 462, t); });
+    // Connecteur IIC : deux colonnes de 4 broches, D C G V.
+    for (const [b, y] of Object.entries(I2C_DFR)) {
+        for (const x of [110, 133]) s += rp(x - 10, y - 10, x + 10, y + 10, 'fill="#8d9399" stroke="#111"') + rp(x - 3, y - 3, x + 3, y + 3, 'fill="#c9a54a"');
+        s += ser(152, y + 4, b, 'end');
     }
-    s += texte(500, 610, 'DFR0548 · carte moteurs', 'class="montage-serigraphie" text-anchor="middle"');
+    s += ser(122, 110, 'IIC');
     return s;
 }
 
@@ -497,7 +528,7 @@ function dessinFil(f, fin, o) {
 }
 
 function dessinerScene(etat) {
-    const basCarte = etat.carte === 'dfr' ? 700 : etat.carte === 'bitmaker' ? BM_BAS : GROVE_PCB.y + GROVE_PCB.l;
+    const basCarte = etat.carte === 'dfr' ? DFR_BAS + 18 : etat.carte === 'bitmaker' ? BM_BAS : GROVE_PCB.y + GROVE_PCB.l;
     let hauteur = disposer(etat.modules, basCarte);
     let bas = etat.carte === 'dfr' ? dessinCarteDfr() : etat.carte === 'bitmaker' ? dessinCarteBitmaker() : dessinCarteGrove();
     // Ruban sur les LED de la BitMaker : legende sous la carte, a la place du module et de son cable.

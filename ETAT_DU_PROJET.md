@@ -375,6 +375,14 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    dans le volet de test en arrière-plan (images suspendues) ; refait ensuite,
    les deux sens ont fonctionné. À revoir sur un vrai poste en faisant glisser la
    poignée de la colonne.
+   **DFR0548 redessinée** d'après le schéma « Board Overview » du wiki DFRobot
+   (750 × 673 px, carte de x 100 à 642 et de y 37 à 662, cotes converties depuis
+   les pixels), tournée d'un demi-tour (connecteur en haut, sous la micro:bit).
+   Vérifié dans le navigateur : moteurs M1 et M2, pas à pas 42BYGH sur M3 + M4,
+   servos S1 et S8, bouton sur P0, ultrason sur P16, OLED sur l'IIC ; phrase
+   DFR0548 à la place du choix de carte ; aucune erreur console. À comparer avec
+   une vraie carte : l'ordre des vis du bornier (lu sur la sérigraphie du schéma,
+   M4 2B- à M1 1A+ de gauche à droite avant le demi-tour).
 
 ## Écarté volontairement
 
