@@ -404,6 +404,17 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    par `un.js`. Vérifié : LCD, bouton, ultrason, LED → la liste ne montre que
    l'ultrason et la case « maintenu enfoncé » ; repli et dépli mémorisés ; liste
    complète en vue agrandie ; LCD du montage bleu, texte blanc « Bonjour ».
+9. **La carte Motor:bit V1.6** (oct. 2026, readme §45). Brochage repris de la
+   documentation ELECFREAKS et du paquet MakeCode pxt-motorbit (M1 : P1 vitesse,
+   P8 sens ; M2 : P2 vitesse, P12 sens), jamais exécuté sur une vraie carte.
+   Vérifié dans le navigateur : code généré `_motorbit().moteur(1, 1, 150)` avec le
+   pilote sur pin1 / pin8 ; M1 à ↻ 150 et M2 à ↺ 80 dans « Périphériques » et dans
+   le montage ; Motor:bit imposée par ses blocs (phrase à la place du choix),
+   choisie aussi par le bouton radio ; ultrason sur P13, OLED sur l'I2C P19 / P20,
+   alertes « P0 : buzzer de la carte » et « P8 : moteur M1 » ; aucune erreur
+   console. Dessin d'après le dessin coté du wiki ELECFREAKS (zXGYS2h.jpg, consulté
+   dans le navigateur, non téléchargé). Si une carte est disponible : vérifier le
+   sens « horaire » de chaque moteur et le niveau de P8 / P12.
 
 ## Écarté volontairement
 
