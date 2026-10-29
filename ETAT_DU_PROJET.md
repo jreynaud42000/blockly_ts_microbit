@@ -415,6 +415,13 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    console. Dessin d'après le dessin coté du wiki ELECFREAKS (zXGYS2h.jpg, consulté
    dans le navigateur, non téléchargé). Si une carte est disponible : vérifier le
    sens « horaire » de chaque moteur et le niveau de P8 / P12.
+10. **Catégorie « Cartes d'extension »** (oct. 2026, maquette A choisie par
+   l'utilisateur) : « Carte moteurs DFR0548 » et « Carte moteurs Motor:bit » réunies
+   dans une catégorie parente avec deux sous-catégories (DFR0548, Motor:bit), comme
+   Grove ; couleurs des blocs inchangées. Repris de Mode classe, où il a été vérifié : colonne des
+   catégories, tiroir Motor:bit (2 blocs, bleu), panneau administrateur (catégorie et
+   ses deux sous-menus), aucune erreur console. Un réglage administrateur déjà fait
+   sur une ancienne catégorie ne s'applique plus.
 
 ## Écarté volontairement
 
