@@ -408,7 +408,7 @@ async function ouvrirFenetre(onglet = 'exercices') {
     contenu += '<div class="ex-profil"><label>Nom de l\'élève <input id="ex-nom" type="text" value="' + esc(nomActuel) + '" maxlength="40" list="ex-noms" autocomplete="off"></label>' +
         '<datalist id="ex-noms">' + noms.map(n => '<option value="' + esc(n) + '">').join('') + '</datalist>' +
         '<label class="ex-libre"><input id="ex-libre" type="checkbox"' + (donnees.libre ? ' checked' : '') + '> Accès libre (tout déverrouiller)</label></div>';
-    contenu += '<div class="ex-onglets"><button data-onglet="exercices">Exercices</button><button data-onglet="evaluation">Évaluation</button><button data-onglet="resultats">Résultats</button></div>';
+    contenu += '<div class="ex-onglets"><button data-onglet="exercices">Exercices</button><button data-onglet="resultats">Résultats</button></div>';
     contenu += '<div id="ex-contenu"></div>';
     const v = voile(contenu);
     const gerer = () => { // nom de profil : memorise des qu'il change

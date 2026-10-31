@@ -228,6 +228,7 @@
     .tb-dropdown-menu button:hover { background: #f0f0f0; }
     .tb-dropdown-menu button:disabled, .tb-dropdown-menu button:disabled:hover { color: #999; background: none; cursor: not-allowed; }
     .menu-titre { padding: 8px 14px 3px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #888; }
+    .menu-trait { border: 0; border-top: 1px solid rgba(128,128,128,0.3); margin: 4px 10px; }   /* menu Fichier : charger / telecharger */
     .tb-dropdown-menu button.choisi { font-weight: 700; color: var(--accent-fonce); }
     .tb-dropdown-menu button.choisi::after { content: '  ✓'; }
     #menu-affichage-panneau { left: 0; min-width: 190px; }
@@ -1599,14 +1600,18 @@
         Fichier ▾
       </button>
       <div id="menu-fichier-panneau" class="tb-dropdown-menu menu-panneau">
+        <div class="menu-titre">Projet</div>
         <button id="nouveau-projet-btn">Nouveau projet</button>
         <button id="import-hex-btn">Charger un fichier .hex</button>
         <button id="import-py-btn">Charger un script .py</button>
         <input type="file" id="import-hex-input" accept=".hex" style="display:none;">
         <input type="file" id="import-py-input" accept=".py" style="display:none;">
-        <button id="tb-telecharger-xml" disabled title="Non disponible dans cette version">Télécharger .xml</button>
+        <hr class="menu-trait">
         <button id="download-btn">Télécharger .hex</button>
         <button id="download-py-btn">Télécharger .py</button>
+        <button id="tb-telecharger-xml" disabled title="Non disponible dans cette version">Télécharger .xml</button>
+        <div class="menu-titre">Apprendre</div>
+        <button id="ex-menu-btn" title="Exercices progressifs avec indices, étoiles et progression enregistrée">🎓 Exercices pas à pas</button>
         <!-- Multi-editeur radio (multi.html) : deux editeurs cote a cote, leurs simulations communiquent par radio -->
         <div class="menu-titre">Radio</div>
         <button id="multi-editeur-btn" title="Ouvre deux éditeurs côte à côte dans un nouvel onglet : les deux cartes simulées communiquent par radio">📡 Multi-éditeur radio (2 cartes)</button>
@@ -1697,8 +1702,6 @@
         Aide ▾
       </button>
       <div id="menu-aide-panneau" class="tb-dropdown-menu menu-panneau">
-        <button id="ex-menu-btn" title="Exercices progressifs avec indices, étoiles et progression enregistrée">🎓 Exercices pas à pas</button>
-        <button id="ex-eval-menu-btn" title="Évaluation chronométrée, sans indice, avec note et rapport">📝 Mode évaluation</button>
         <button id="tuto-menu-btn">🧭 Visite guidée</button>
         <button id="tuto-ia-menu-btn">🧠 Visite guidée IA</button>
         <button id="tb-mission" disabled title="Non disponible dans cette version">🚀 Mon premier programme</button>
