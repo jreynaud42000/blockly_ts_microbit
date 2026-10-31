@@ -6,7 +6,7 @@ Application web locale : on assemble des blocs, on lit la transcription
 MicroPython, on essaie le programme dans le simulateur, puis on telecharge
 un fichier .hex a glisser sur le lecteur MICROBIT.
 
-VARIANTE blockly_ts_microbit (oct. 2026) : copie de blockly_ts_adacraft_minimal
+VARIANTE easybloc_ts_microbit (oct. 2026) : copie de easybloc_ts_adacraft_minimal
 SANS le mode seance (menu Fichier > Seance, seances.js) et SANS les robots
 (categorie Robots : Maqueen Plus, Maqueen Lite, Kitrobot v2, LiDAR ; panneau
 Piste du simulateur, telecommande infrarouge simulee). Les sections 15 a 18
@@ -839,7 +839,7 @@ garde.
 ---------------------------------------------------------
 Maqueen Plus (et V3), Maqueen Lite, Kitrobot v2, telecommande infrarouge et
 LiDAR ne font pas partie de cette variante : ni blocs, ni panneau Piste dans
-le simulateur. Ils restent dans blockly_ts_adacraft_minimal.
+le simulateur. Ils restent dans easybloc_ts_adacraft_minimal.
 
 ---------------------------------------------------------
 19. IA : VISION (CAMERA) ET SON (MICRO)
@@ -1059,7 +1059,7 @@ Aide (menu : Visite guidee, IA, Console, clic droit), tout a droite ; son menu s
   conserves, Envoyer apres Capture et IA apres Code.
 
 ---------------------------------------------------------
-24. BANDEAU IDENTIQUE A LA VERSION ARDUINO R4 (copie d'essai blockly_ts_adacraft_vilain)
+24. BANDEAU IDENTIQUE A LA VERSION ARDUINO R4 (copie d'essai easybloc_ts_adacraft_vilain)
 ---------------------------------------------------------
 Le bandeau du haut reprend l'apparence de la version Arduino R4 (modele fourni par le collegue) : memes boutons,
 memes menus, meme ordre, memes couleurs. Seul l'habillage change (index.html + bandeau.js, nouveau) : les id et les

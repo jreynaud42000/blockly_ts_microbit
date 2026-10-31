@@ -1,6 +1,6 @@
 # Prompt de recréation — éditeur Blockly pour micro:bit V2
 
-> **Variante `blockly_ts_microbit`** (oct. 2026) : copie de `blockly_ts_adacraft_minimal` sans le mode séance (§29) ni les robots (§15 à §19). Les autres sections restent valables telles quelles.
+> **Variante `easybloc_ts_microbit`** (oct. 2026) : copie de `easybloc_ts_adacraft_minimal` sans le mode séance (§29) ni les robots (§15 à §19). Les autres sections restent valables telles quelles.
 
 > À copier-coller intégralement dans une IA. Tout ce qui suit est prescriptif :
 > chaque point marqué **PIÈGE** correspond à une erreur réellement commise et
@@ -2144,7 +2144,7 @@ boucles concurrentes demanderait de les entrelacer, hors de portée ici.
 
 ## 15 à 19. Robots et piste (retirés de cette variante)
 
-Maqueen Plus (et V3), Kitrobot v2, télécommande infrarouge, LiDAR, Maqueen Lite et la piste partagée ne font pas partie de la variante `blockly_ts_microbit`. Leur recréation est décrite dans le `PROMPT_RECREATION.md` de `blockly_ts_adacraft_minimal`.
+Maqueen Plus (et V3), Kitrobot v2, télécommande infrarouge, LiDAR, Maqueen Lite et la piste partagée ne font pas partie de la variante `easybloc_ts_microbit`. Leur recréation est décrite dans le `PROMPT_RECREATION.md` de `easybloc_ts_adacraft_minimal`.
 
 ## 20. Lanceur et empaquetage
 

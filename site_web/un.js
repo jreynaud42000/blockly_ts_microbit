@@ -3937,7 +3937,10 @@ try {
     // depart (au_demarrage, boucle_infinie) sont crees juste apres l'inject,
     // et doivent deja beneficier des libelles personnalises s'il y en a.
 
-    const CLE_CONFIG_ADMIN = 'blockly_ts_config_admin';
+    const CLE_CONFIG_ADMIN = 'easybloc_ts_config_admin';
+    // Nom Easybloc (31 oct. 2026) : reglages enregistres sous l'ancienne cle repris une fois.
+    try { if (localStorage.getItem(CLE_CONFIG_ADMIN) === null && localStorage.getItem('blockly_ts_config_admin') !== null)
+              localStorage.setItem(CLE_CONFIG_ADMIN, localStorage.getItem('blockly_ts_config_admin')); } catch (erreur) { /* stockage indisponible */ }
 
     function configAdminParDefaut() {
         return { categories: { order: [], hidden: [], labels: {}, colors: {} }, groupes: {}, sousMenus: [], libellesBlocs: {} };

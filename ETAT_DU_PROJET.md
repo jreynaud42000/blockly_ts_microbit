@@ -1,8 +1,8 @@
 # État du projet — éditeur Blockly micro:bit V2
 
 Dossier de travail d'origine : `C:\Users\jreyn\OneDrive\Bureau\blockly_ts` (V2.0C)
-Dossier de travail actuel (variante V2.0E sans séance ni robots) : `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_microbit`
-Copiée de : `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_minimal` (oct. 2026), en retirant le mode séance (`seances.js`, menu Fichier > Séance) et les robots (catégorie Robots : Maqueen Plus, Maqueen Lite, Kitrobot v2, LiDAR ; panneau Piste ; télécommande infrarouge simulée). Les lignes du tableau et les points à vérifier qui les concernaient sont retirés.
+Dossier de travail actuel (variante V2.0E sans séance ni robots) : `C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_microbit`
+Copiée de : `C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_minimal` (oct. 2026), en retirant le mode séance (`seances.js`, menu Fichier > Séance) et les robots (catégorie Robots : Maqueen Plus, Maqueen Lite, Kitrobot v2, LiDAR ; panneau Piste ; télécommande infrarouge simulée). Les lignes du tableau et les points à vérifier qui les concernaient sont retirés.
 Vérifié après le retrait (navigateur intégré, oct. 2026) : aucune erreur JavaScript au chargement ; colonne de catégories sans « Robots », menu Fichier sans « Séance » ; simulation d'un « afficher l'icône » dans « Répéter indéfiniment » (matrice allumée) ; exercices, évaluation et rapport sans bouton « Rendre mon travail ». Pas vérifié : l'exe PyInstaller, le site hébergé, une vraie carte.
 Lancement : double-clic sur `lancer_projet.bat`, puis <http://localhost:8000> — ou l'exe `dist\MicrobitEasybloc_V2.0E.exe`
 Hébergement : dossier `site_web` (site statique, voir `PROMPT_RECREATION.md` §26)
@@ -56,9 +56,9 @@ Passe suivante, avec une image de référence de l'utilisateur (« je veux que l
 | Édition manuelle du code | Bouton « ✎ Éditer » : bascule vers un `<textarea>`, gèle le canevas Blockly (voile visuel qui capte aussi les clics), la saisie remplace `window.currentPythonCode` en direct — vérifié que `.hex`/`.py`/simulateur le lisent bien à cet instant. « Revenir aux blocs » restaure le code généré et dégèle. Testé via `window.editionCodeTest` (voir un.js), non persisté (perdu au rechargement, comme l'espace de travail lui-même) |
 | Exécution tour par tour | Réécrit pour que `sleep()` laisse vraiment un capteur voir l'effet du tour précédent (voir `PROMPT_RECREATION.md` §14). Non-régression vérifiée sur le test déjà documenté : `was_gesture` déclenche 1 fois sur 5 tours, `is_gesture` 5 fois, identique à avant. Vérifié aussi : événements « lorsque … » toujours scrutés à chaque tour, programme sans boucle infinie, et repli correct sur l'ancien comportement avec deux boucles infinies empilées (cas rare) |
 
-## Évolutions de la copie `blockly_ts_adacraft_vilain` (V2.0C → V2.0E, oct. 2026)
+## Évolutions de la copie `easybloc_ts_adacraft_vilain` (V2.0C → V2.0E, oct. 2026)
 
-Toutes les évolutions ci-dessous ont été faites dans la **copie** `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain`
+Toutes les évolutions ci-dessous ont été faites dans la **copie** `C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain`
 (le projet principal `blockly_ts` reste à la V2.0C, exe compris). Principe de travail : **ne modifier aucune fonction existante** quand un
 nouveau fichier suffit — d'où `bandeau.js` et `exercices.js`, qui s'appuient sur les identifiants et les classes existants (`.inactif`,
 `#btn-vue-*`, `window.workspace`, `window.simuEnCours`…). Détails de réalisation : `PROMPT_RECREATION.md` §22 à §26 (pièges nº 59 à nº 70) et
@@ -461,9 +461,9 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
 Donner ces trois fichiers comme point de départ :
 
 ```
-C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain\ETAT_DU_PROJET.md
-C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain\readme.txt
-C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain\PROMPT_RECREATION.md
+C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain\ETAT_DU_PROJET.md
+C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain\readme.txt
+C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain\PROMPT_RECREATION.md
 ```
 
 Puis préciser ce qu'on veut faire. Le code lui-même est commenté en français, en
