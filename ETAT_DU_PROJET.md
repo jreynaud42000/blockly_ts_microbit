@@ -4,7 +4,7 @@ Dossier de travail d'origine : `C:\Users\jreyn\OneDrive\Bureau\blockly_ts` (V2.0
 Dossier de travail actuel (variante V2.0E sans séance ni robots) : `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_microbit`
 Copiée de : `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_minimal` (oct. 2026), en retirant le mode séance (`seances.js`, menu Fichier > Séance) et les robots (catégorie Robots : Maqueen Plus, Maqueen Lite, Kitrobot v2, LiDAR ; panneau Piste ; télécommande infrarouge simulée). Les lignes du tableau et les points à vérifier qui les concernaient sont retirés.
 Vérifié après le retrait (navigateur intégré, oct. 2026) : aucune erreur JavaScript au chargement ; colonne de catégories sans « Robots », menu Fichier sans « Séance » ; simulation d'un « afficher l'icône » dans « Répéter indéfiniment » (matrice allumée) ; exercices, évaluation et rapport sans bouton « Rendre mon travail ». Pas vérifié : l'exe PyInstaller, le site hébergé, une vraie carte.
-Lancement : double-clic sur `lancer_projet.bat`, puis <http://localhost:8000> — ou l'exe `dist\MicrobitBlockly_V2.0E.exe`
+Lancement : double-clic sur `lancer_projet.bat`, puis <http://localhost:8000> — ou l'exe `dist\MicrobitEasybloc_V2.0E.exe`
 Hébergement : dossier `site_web` (site statique, voir `PROMPT_RECREATION.md` §26)
 Fichiers ajoutés depuis la V2.0C : `bandeau.js`, `montage.js`, `exercices.js`, `exercices.json`, `ia-immediat.js`, `ia-son-immediat.js`, `lib/mediapipe`, `lib/zxing`, `site_web/` (voir la section « Évolutions de la copie »)
 
